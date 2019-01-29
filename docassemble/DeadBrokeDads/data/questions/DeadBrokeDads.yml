@@ -1,0 +1,53 @@
+---
+metadata:
+  title: |
+    Help with DOR collecting back child support
+  short title: |
+    Child Support Arrears
+  description: |
+    An interview to help parents when DOR/CSE is collecting past due child support 
+  authors: |
+    - name: Caroline Robinson
+      organization: Volunteer Lawyers Project.
+  revision_date: 2019-019-28
+---
+mandatory: true
+question: |
+  What are the problems you are having with DOR/CSE?
+fields:
+  - note: Check all the boxes that are true..
+  - My license was suspended.: prob_lic_suspended
+    datatype: yesnowide
+  - My license was suspended - so I cannot work.: prob_lic_suspended_nowork
+    datatype: noyeswide
+  - DOR/CSE is charging me interest because I did not pay all the child support I owe.: prob_interest
+    datatype: noyeswide
+  - DOR/CSE is charging me penalties because I did not pay all the child support I owe.: prob_penalties
+    datatype: noyeswide
+  - DOR/CSE took my tax refund.: prob_refund
+    datatype: noyeswide
+  - DOR/CSE is taking more money out of my pay than they should.: prob_increase
+    datatype: noyeswide
+  - I cannot use the money in my bank because DOR/CSE froze my account.: prob_frozen_account
+    datatype: noyeswide
+  - DOR/CSE started taking money out my pay.: prob_garnish
+    datatype: noyeswide
+  - DOR/CSE says I owe child support but I do not.: prob_disagreement
+    datatype: noyeswide
+---
+question: |
+ Information about your child support order.
+subquestion: |
+  When did the court first order you to pay child support? What is the date on the first order?
+fields:
+  - date on 1st child support order: order_date
+    datatype: date
+---
+mandatory: True
+need:
+  - order_date
+question: |
+   Did the court change the child support order since? 
+yesno: order_modified
+ ---
+ 
