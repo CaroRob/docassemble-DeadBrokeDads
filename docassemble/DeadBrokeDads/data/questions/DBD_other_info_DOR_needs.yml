@@ -1,0 +1,78 @@
+mandatory: True
+question: |
+  What else should DOR know about your situation?
+fields:
+  - "I get a needs-based benefit": benefits
+    datatype: yesnoradio
+  - "I get": income_items_list
+    show if: benefits
+    datatype: checkboxes
+    choices:
+      - SSI: ssi
+      - TAFDC: tafdc
+      - EAEDC: eaedc
+      - another benefit: other
+    none of the above: False
+  - "What other benefit or benefits do you get?": other_benefit
+    js show if: 
+       val("income_items_list['other']")
+  - "I used to get a needs-based benefit": past_benefits
+    datatype: yesnoradio
+  - "I used to get": past_income_items_list
+    show if: past_benefits
+    datatype: checkboxes
+    choices:
+      - SSI: ssi
+      - TAFDC: tafdc
+      - EAEDC: eaedc
+      - another benefit: other
+    none of the above: False
+  - "What other benefit or benefits do you get?": past_other_benefit
+    js show if: 
+       val("past_income_items_list['other']")
+  - "My child(ren) get(s) a needs-based benefit": child_benefits
+    datatype: yesnoradio
+  - "I get": child_income_items_list
+    show if: child_benefits
+    datatype: checkboxes
+    choices:
+      - SSI: ssi
+      - TAFDC: tafdc
+      - EAEDC: eaedc
+      - another benefit: other
+    none of the above: False
+  - "What other benefit or benefits do you get?": child_other_benefit
+    js show if: 
+       val("child_income_items_list['other']")
+  - "My child(ren) get(s) used to get a needs-based benefit": past_child_benefits
+    datatype: yesnoradio
+  - "They used to get": past_child_income_items_list
+    show if: past_child_benefits
+    datatype: checkboxes
+    choices:
+      - SSI: ssi
+      - TAFDC: tafdc
+      - EAEDC: eaedc
+      - another benefit: other
+    none of the above: False
+  - "What other benefit or benefits do you get?": past_child_other_benefit
+    js show if: 
+       val("past_child_income_items_list['other']")
+  - no label: other_considerations
+    datatype: checkboxes
+    choices:
+    - I am disabled.: disabled  
+    - I was disabled.: past_disabled
+    - I am unemployed.: unemployment
+    - I was unemployed: past_unemployment
+    - I am in prison or jail: incarcerated
+    - I was in prison or jail: past_incarcerated
+    - I am a court-appointed Conservator or Guardian for someone else.: conservator
+    none of the above: true
+  - "Is there anything we have not listed that DOR should know?": other_need
+    input type: radio
+    choices:
+      - Yes: True
+      - No: False
+  - "Please explain": other_needed_info
+    show if: other_need 

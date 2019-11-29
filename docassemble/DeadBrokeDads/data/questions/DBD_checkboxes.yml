@@ -1,0 +1,25 @@
+event: problem_causes
+question: |
+  Events that may have caused your child support problem
+fields:
+  - no label: problem_causes
+    datatype: checkboxes
+    choices:
+      - Your income changed: income-change
+      - ${ other_parent.name.first]'s income changed: op-income-change
+      - Pears: pear
+---
+mandatory: True
+question: |
+  Thank you for your thoughts.
+subquestion: |
+  % if likes_fruit['apple']:
+  You like apples.
+  % endif
+  % if likes_fruit['peach']:
+  You like peaches.
+  % endif
+  % if likes_fruit['pear']:
+  You like pears.
+  % endif
+  Your favorite, though, is ${ favorite_fruit }.

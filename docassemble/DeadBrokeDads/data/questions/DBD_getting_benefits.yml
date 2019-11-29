@@ -1,0 +1,29 @@
+question: |
+ every block needs a question
+fields:
+ - "I get a needs-based benefit": benefits
+   datatype: yesnoradio
+ - "I get": income_items_list
+   show if: benefits
+   datatype: checkboxes
+   choices:
+     - SSI: ssi
+     - TAFDC: tafdc
+     - EAEDC: other
+     - another benefit: another
+ - "what other benefit do you get?": other_benefit
+   js show if: |
+     val('income_items_list["another"]') === true
+---
+mandatory: True
+question: |
+ Do you get 1 or more need based benefits? ${benefits}
+subquestion: |  
+ The benefits I get are:
+ % if defined(income_items_list):
+   ${income_items_list}
+ % endif
+
+  In Python, `income_items_list` is
+  `${ repr(income_items_list) }`.
+---

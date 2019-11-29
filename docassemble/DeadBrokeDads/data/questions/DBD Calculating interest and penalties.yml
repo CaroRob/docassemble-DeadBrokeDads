@@ -1,0 +1,49 @@
+metadata:
+  title: Calculating interest and penalties
+  short title: Interest and Penalties
+  example start: 2
+  example end: 2
+  documentation: "https://docassemble.org/docs/functions.html#period_list and https://github.com/GBLS/docassemble-income/blob/master/docassemble/income/income.py"
+---
+modules:
+  - .DBDIncome
+---
+code: |
+  cs_arrears_date
+  court_ordered_cs
+mandatory: True
+---
+code: |
+  penalty_date_old = as_datetime('1/1/1999')
+  penalty_date_recent = as_datetime('7/1/2010')
+---
+question: |
+  When was the first time you fell behind on child support payments?:
+fields:
+  - date: cs_arrears_date
+    datatype: date
+---
+question: |
+  What is your child support order?
+subquestion: |
+  How much and how often?
+fields:
+  - How much?: court_ordered_cs
+    datatype: currency
+  - Period: court_ordered_frequency
+    datatype: number
+    code: |
+      period_list()
+---
+event: CS_in_weeks_question
+question: |
+  Your court ordered child support
+subquestion: |
+  You were ordered to pay ${ currency((court_ordered_cs * court_ordered_frequency)/52) } in child support
+  per week.
+  
+  The period over which your arrears accumulated based on your information is ${ int(date_difference(starting=cs_arrears_date, ending=today()).weeks)} weeks.
+  
+  The total arrears you owe based on your information is ${ currency((int(date_difference(starting=cs_arrears_date, ending=today()).weeks)) *((court_ordered_cs * court_ordered_frequency)/52)) }.
+mandatory: True
+---

@@ -1,0 +1,52 @@
+mandatory: True
+code: |
+  if other_need:
+    filed_to_change
+---
+question: |
+  What else should DOR know about your situation?
+subquestion: |
+  Is there anything we have not listed that DOR should know?
+fields:
+  - no label: other_need
+    input type: radio
+    choices:
+      - Yes: True
+      - No: False
+  - "Please explain": other_needed_info
+    show if: other_need 
+---
+question: | 
+  If you checked anything not listed...
+subquestion: |
+  Did you file anything at court to ask them to change the child support order?
+fields: 
+  - no label: filed_to_change
+    datatype: radio
+    choices:
+      - Yes: True
+      - No
+  - Why did you file at court?: filed_to_change_expl
+    show if: filed_to_change
+  - Why did you not file at court?: filed_to_change_expl
+    js show if: |
+      val('filed_to_change') == 'No'
+---
+mandatory: True
+question: |
+  Results
+subquestion: |
+  Was there anything else we had not asked about? ${other_need}
+  
+  % if other_need:
+    What was it? - ${other_needed_info}
+  % endif
+  
+  % if filed_to_change:
+    I filed because ${filed_to_change_expl}.
+  % else:
+    I did not file because ${filed_to_change_expl}.
+  % endif
+  % if filed_to_change_expl:
+  % endif
+

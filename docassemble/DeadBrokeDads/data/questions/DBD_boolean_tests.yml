@@ -1,0 +1,123 @@
+---
+modules:
+  - docassemble.income
+---
+objects:
+  - client: Individual
+  - other_parent: Individual
+---
+images:
+  notice: Notice of Arrears.png
+  noticetop: DBD_NoticeTop.png
+---
+terms:
+  notice: |
+     [FILE Notice_of_Arrears.png]
+  noticetop: |
+      [FILE DBD_NoticeTop.png]
+---
+default screen parts:
+  continue button label: |
+    Next
+---
+mandatory: true
+code: |
+  dor_cse_notice_court
+  notice_date_delinquency
+---
+code: |
+  pf_courts = ['Barnstable Probate and Family Court', 'Berkshire Probate and Family Court', 'Bristol Probate and Family Court', 'Brockton Probate and Family Court', 'Dukes Probate and Family Court', 'Essex Probate and Family Court', 'Franklin Probate and Family Court', 'Hampden Probate and Family Court', 'Hampshire Probate and Family Court', 'Middlesex Probate and Family Court', 'Nantucket Probate and Family Court', 'Norfolk Probate and Family Court', 'Plymouth Probate and Family Court', ' Suffolk Probate and Family Court', 'Worcester Probate and Family Court', 'A court that is not in Massachusetts']
+---
+question: |
+  What does the Notice of Delinquent Child Support from DOR/CSE say?
+subquestion: |
+  These notices can be confusing. 
+  
+  The amount under other_parent.name.first's name,  is supposed to be your regular child support payment.
+
+  In the middle is how often you are supposed to pay child support.
+
+  The amount on the right is the amount of back child support that DOR CSE says you owe. This amount also includes any interest and penalties DOR CSE is charging you.
+  
+  What does DOR/CSE say these are?
+  The notice should look something like this:
+  [FILE DBD_NoticeTop.png]
+fields:
+  - 1. What is the date?: notice_date_delinquency
+    datatype: date 
+  - 2. What is custodial parent's first name?: other_parent.name.first
+  - 2. What is custodial parent's middle name?: other_parent.name.middle
+    required: False
+  - 2. What is custodial parent's last name?: other_parent.name.last
+  - 3. What does it say you "owe" $$$?: dor_cse_notice_amount
+    datatype: currency
+  - 4. What name does it give for the court?: dor_cse_notice_court
+    # datatype: dropdown
+    # code: pf_courts 
+  - 5. What does it say the frequency is?: dor_cse_notice_frequency
+    datatype: number
+    code: |
+      period_list()
+  - 6. Total past due child support?: dor_cse_notice_arrears
+    datatype: currency
+    min: 0
+validation code: |
+  if notice_date_delinquency > today():
+    validation_error('This date must be before today.')
+section: Notice of Child Support Delinquency
+---
+question: |
+  What court issued the child support order?
+subquestion: |
+  Look at the top of the child support order - the name of the court should be there.
+fields:
+  - no label: other_cs_court
+---
+question: |
+  Is the Notice of Child Support Delinquency right? 
+subquestion: |
+  Compare your latest child support order with the Notice.
+fields:
+  - Is ${dor_cse_notice_court} at the top of the child support order?: dor_cse_notice_court_wrong
+    datatype: noyesradio   
+  - What is the name of the court at the top of your latest child support order?: cs_court
+    datatype: dropdown
+    code: pf_courts   
+    show if: dor_cse_notice_court_wrong
+  - Does the court order say you must pay  ${ currency(dor_cse_notice_amount) }: dor_cse_notice_amount_wrong
+    datatype: noyesradio   
+  - What does your latest order say you must pay?: cs_amount
+    datatype: currency
+    show if: dor_cse_notice_amount_wrong
+  - Does the court order say you must pay ${dor_cse_notice_frequency} : dor_cse_notice_frequency_wrong
+    datatype: noyesradio   
+  - How often does your order say you must pay child support?: cs_frequency
+    datatype: number
+    code: |
+      period_list()
+    show if: dor_cse_notice_frequency_wrong
+  - Do you owe ${currency(dor_cse_notice_arrears)} in back child support? : dor_cse_notice_arrears_tf
+    datatype: noyesradio   
+---
+question: |
+  Is DOR/CSE charging you a penalty?
+subquestion: |
+  On page 6, the notice talks about the Special Tax Refund Rule,
+
+  They say, "Here are the amounts we will tell the tax agency you owe now:"
+fields:
+  - What is the State Amount?: arrears_state
+    datatype: currency 
+  - What is the Federal Amount?: arrears_federal
+    datatype: currency     
+---
+question: |
+  Did you ever pay late?
+subquestion: |
+  Have you ever fallen behind on child support payments?
+field: cs_arrears_mc
+choices:
+  - Yes
+  - No
+  - I am not sure
+---
