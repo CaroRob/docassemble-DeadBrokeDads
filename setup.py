@@ -1,12 +1,10 @@
-#!/usr/bin/env python
-
 import os
 import sys
 from setuptools import setup, find_packages
 from fnmatch import fnmatchcase
 from distutils.util import convert_path
 
-standard_exclude = ('*.py', '*.pyc', '*~', '.*', '*.bak', '*.swp*')
+standard_exclude = ('*.pyc', '*~', '.*', '*.bak', '*.swp*')
 standard_exclude_directories = ('.*', 'CVS', '_darcs', './build', './dist', 'EGG-INFO', '*.egg-info')
 def find_package_data(where='.', package='', exclude=standard_exclude, exclude_directories=standard_exclude_directories):
     out = {}
@@ -47,7 +45,7 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
 setup(name='docassemble.DeadBrokeDads',
       version='',
       description=(''),
-      long_description=u'# docassemble.DeadBrokeDads\n\n\n\n## Author\n\nCaroline Robinson, crobinson@mlri.org\n\n',
+      long_description='# docassemble.DeadBrokeDads\r\n\r\n\r\n\r\n## Author\r\n\r\nCaroline Robinson, crobinson@mlri.org\r\n\r\n',
       long_description_content_type='text/markdown',
       author='Caroline Robinson',
       author_email='crobinson@mlri.org',

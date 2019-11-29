@@ -1,0 +1,376 @@
+---
+metadata:
+  title: |
+    Help with DOR collecting back child support
+  short title: |
+    Help with Child Support Arrears
+  description: |
+    An interview to help parents when DOR/CSE is collecting past due child support 
+  authors: |
+    - name: Caroline Robinson
+      organization: Volunteer Lawyers Project
+  revision_date: 2019-03-20
+---
+sections:
+  - Introduction
+  - About you:
+  - Notice of Child Support Delinquency
+  - Current child support order:
+    - Modified child support order
+  - Conclusion
+---
+features:
+  navigation: True
+  progress bar: True
+---
+modules:
+  - docassemble.income
+---
+objects:
+  - client: Individual
+  - other_parent: Individual
+---
+images:
+  notice: Notice of Arrears.png
+  noticetop: DBD_NoticeTop.png
+---
+terms:
+  notice: |
+     [FILE Notice_of_Arrears.png]
+  noticetop: |
+      [FILE DBD_NoticeTop.png]
+---
+# include:
+  # - financial_statement.yml
+---
+mandatory: True
+code: |
+  if get_started:
+    get_started2
+  else:
+    kick_out
+  if prob_action:
+    prob_lic_suspended
+  if prob_other_tf:
+    prob_other_te
+  client.name.first
+  other_parent.name.first
+  dor_cse_notice_amount_tf
+  penalty = arrears_state - arrears_federal
+  if penalty_other_tf:
+    penalty_other
+  file_within_30
+  cs_order_date
+  if order_modified:
+    most_recent_order = 'most recent '
+    order_modified_date
+  else:
+    most_recent_order = ''
+  filer
+  cs_order_date
+  cs_order_end
+  if order_modified_date:
+    most_recent_cs_date = order_modified_date
+  else:
+     most_recent_cs_date = cs_order_date
+  income_changed
+  # financial_statement_questions # Defines client, spouse, household, assets, incomes, vehicles, expenses,   
+---
+mandatory: True
+question: |
+  Welcome!
+  If the Department of Revenue Child Support Enforcement (DOR/CSE) sent you a Notice of Child Support Delinquency, you may not have to pay **everything** on the notice. 
+  
+  If DOR/CSE has taken some action that makes it hard for you pay back the child support you owe, you can ask them for a break.
+  
+  Sometimes the DOR makes mistakes.
+  
+  Sometimes they recognize that you cannot pay back everything. 
+  They can decide they will not charge you, 
+  * interest (?)
+  * penalties
+  * the amount of child support you owe them.*
+
+  They can also undo actions they have taken that make it hard for you to pay overdue child support.
+  
+  We are going to ask you questions to help you fill out the forms you need to get help with your back child support. 
+
+  Shall we get started?
+yesno: get_started
+section: Introduction
+under: |
+  Note: Just to be clear -  we can **only** help with money you owe the Department of Revenue. 
+  You must still pay any back child support you owe your child's other parent.
+---
+question: | 
+  Alternate opening
+subquestion: |
+  If DOR/CSE sent you a Notice of Child Support Delinquency you may not have to pay **everything** on the notice. 
+  
+    They can decide they will not charge you, 
+      * interest, (?)
+      * penalties,
+      * the amount of child support you owe them.* 
+    They can also undo actions they have taken that make it hard for you to pay overdue child support.
+    
+    We are going to ask you questions to help you fill out the forms you need to get help with the money DOR says you them.
+
+  
+  [FILE Notice_of_Arrears.png]
+yesno: get_started2
+under: |
+  Note: Just to be clear -  we can **only** help with money you owe the Department of Revenue. 
+  You must still pay any back child support you owe your child's other parent.
+---
+question: |
+  Modify your child support order
+subquestion: |
+  If:
+    * you cannot pay the amount of child support the court ordered you to pay and
+
+    * things have changed since the court made the child support order, ask the court to change the order.
+
+  Read [Changing your child support order](https://www.masslegalhelp.org/children-and-families/child-support-changing-it) and [How do I change a child support order](https://www.masslegalhelp.org/children-and-families/child-support-change-how).
+event: kick_out
+---
+question: |
+ Your name
+subquestion: |
+  What is your name? We need to put your name on the forms you send to DOR/CSE. 
+fields:
+  - First: client.name.first
+  - Middle: client.name.middle
+    required: False
+  - Last: client.name.last
+section: About you
+---
+question: |
+  What do you need help with? 
+subquestion: |
+  Check the box next to everything that is true.
+fields:
+  - This Notice of Delinquency is the first I knew I was behind in child support.: prob_knewnot
+    datatype: yesnowide 
+  - DOR is wrong about the amount of child support I owe.: prob_disagreement
+    datatype: yesnowide
+  - I cannot pay all the back child support I owe.: prob_cantafford
+    datatype: yesnowide
+  - I need help like a payment plan to pay the back child support I owe: prob_needplan
+    datatype: yesnowide
+  - I need DOR to waive: prob_waive
+		choices:
+    - interest
+		- penalties
+		-	back child support I owe DOR
+  - DOR has taken action that makes it even harder to pay the child support I owe.: prob_action
+    datatype: yesnowide
+---
+question: |
+  What actions has DOR/CSE taken that make it hard for you to pay the child support?
+fields:
+  - note: Check every box that is true.
+  - DOR/CSE is charging me interest because I did not pay all the child support I owe.: prob_interest
+    datatype: yesnowide
+  - DOR/CSE is charging me penalties because I did not pay all the child support I owe.: prob_penalties
+    datatype: yesnowide
+  - My license was suspended.: prob_lic_suspended
+    datatype: yesnowide
+  - My license was suspended - so I cannot work.: prob_lic_suspended_nowork
+    datatype: yesnowide
+  - DOR/CSE took my tax refund.: prob_refund
+    datatype: yesnowide
+  - DOR/CSE is taking more money out of my pay than they should.: prob_increase
+    datatype: yesnowide
+  - I cannot use the money in my bank because DOR/CSE froze my account.: prob_frozen_account
+    datatype: yesnowide
+  - DOR/CSE took money out of an account that is not my money.: prob_guardian_account		
+    datatype: yesnowide		
+  - DOR/CSE took money out of my account when they should not have.: prob_guardian_account		
+    datatype: yesnowide
+  - DOR/CSE started taking money out my pay.: prob_garnish
+    datatype: yesnowide
+  - I have another problem with DOR/CSE.: prob_other_tf
+    datatype: yesnowide
+---
+question: |
+  What is the other problem you are having with DOR/CSE?
+fields:
+  - no label: prob_other_te 
+    datatype: area
+---
+question: |
+  Custodial parent's name
+subquestion: |
+  Who does your child support go to?
+fields:
+  - First: other_parent.name.first
+  - Middle: other_parent.name.middle
+    required: False
+  - Last: other_parent.name.last
+---
+question: |
+  What does the Notice of Delinquent Child Support from DOR/CSE say?
+subquestion: |
+  These notices can be confusing. The amount under ${other_parent.name.first}'s name,  is supposed to be your regular child support payment.
+  In the middle is how often you are supposed to pay child support.
+  The amount on the right is the amount of back child support or arrears, + interest + penalties that DOR CSE says you owe.
+  What does DOR/CSE say these are?
+  The notice should look something like this:
+[FILE DBD_NoticeTop.png]
+fields:
+  - 1. What is the date?: notice_date_delinquency
+    datatype: date
+validation code: |
+  if notice_date_delinquency > today():
+    validation_error('This date must be before today.') 
+  - 2. What is custodial parent's first name?: other_parent.name.first
+  - 2. What is custodial parent's middle name?: other_parent.name.middle
+    required: False
+  - 2. What is custodial parent's last name?: other_parent.name.last
+  - 3. What is the amount you owe $$$: dor_cse_notice_amount
+  - 4. What does it say the frequency is?: dor_cse_notice_frequency
+  - 5. Total past due child support?: dor_cse_notice_arrears
+section: Notice of Child Support Delinquency
+---
+question: |
+  Is the Notice of Child Support Delinquency right? 
+subquestion: |
+  
+  Check all the boxes that are true
+fields:
+  - Yes, I am supposed to be paying ${cse_dor_notice_amount} : cse_dor_notice_amount_tf
+    datatype: yesnowide
+  - Yes, I am supposed to be paying child support ${cse_dor_notice_frequency} : cse_dor_notice_frequency_tf
+    datatype: yesnowide
+  - Yes, I do owe ${cse_dor_notice_arrears} : cse_dor_notice_arrears_tf
+    datatype: yesnomaybewide
+  - DOR/CSE is totally wrong about everything.: dor_cse_incorrect
+    datatype: yesnomaybewide 
+---
+question: |
+  Is DOR/CSE charging you a penalty?
+subquestion: |
+  On page 6, the notice talks about the Special Tax Refund Rule,
+
+  "Here are the amounts we will tell the tax agency you owe now:"
+fields:
+  - State: arrears_state
+    datatype: currency
+  - note:
+      What is the State Amount?
+  - Federal: arrears_federal
+    datatype: currency
+  - note: |
+      What is the Federal Amount?
+---
+question: |
+  DOR/CSE is charging you ${penalty} penalty.
+subquestion: |
+  What do you need to ask DOR/CSE to do about this penalty?
+Fields: checkboxes
+  choices: checkboxes
+  - charge me no penalty at all: penalty_none
+  - charge me a smaller penalty: penalty_smaller
+  - add penalty to a payment plan: penalty_plan
+  - other: penalty_other_tf
+  - none of the above: False
+---
+question: |
+  What do you need DOR/CSE to do about this penalty?
+subquestion: |
+field:
+  no label: penalty_other
+---
+question: |
+  If you file an administrative review The DOR/CSE cannot take any other 
+  enforcement actions until they finish the review. For example, they 
+  cannot freeze your bank account or suspend your license.
+fields:
+  - no label: file_within_30
+---
+question: |
+  Information about your child support order.
+section: Current child support order
+---
+question: |
+  When did the court **first** order you to pay child support to ${other_parent.name.first}? What is the date on that order?
+fields:
+  - date on 1st child support order: cs_order_date
+    datatype: date
+---
+question: |
+  Has the court changed your child support order since ${cs_order_date}? 
+fields:
+  - yesnomaybe: order_modified
+    datatype: yesnomaybe
+  - How many times has the court changed your child support order since ${cs_order_date}?: : order_modified_number 
+    datatype: integer
+---
+question: |
+ Information about your ${most_recent_order} child support order.
+subquestion: |
+  Who filed the forms for your most recent child support order?
+fields:
+  - no label: filer
+    datatype: checkboxes
+    choices:
+      - I filed: obligor
+      - ${other_parent.name.first} filed: recipient
+      - DOR/CSE filed: DOR/CSE
+---
+question: |
+  What is the date on the modified order?
+fields:
+  - date: order_modified_date
+    datatype: date
+validation code: |
+    if order_modified_date > today():
+      validation_error("This date must be before today.")
+    if order_modified_date < cs_order_date:
+      validation_error("This date must be after the court first ordered child support.")
+---
+question: |
+  Does DOR/CSE have a copy of the ${ most_recent_order} child support order?
+yesnomaybe: cse_copy
+---
+question: |
+  What is the date on the modified order?
+fields:
+  - date: order_modified_date
+    datatype: date
+---
+question: |
+  Does your ${ most_recent_order} child support order have an end date?
+subquestion: |
+  Read the order carefully. Sometimes it is hard to find and some orders do not say anything about when you can stop paying child support.
+fields:
+  - How does the order talk about ending child support?: cs_order_end
+    datatype: checkboxes
+    choices:
+      - It has an end date.: cs_order_end_date_tf
+      - It explains when the order should end.: cs_order_end_expl_tf
+    none of the above: |
+      ${ "It says nothing about when child support should end." }
+  - What is the end date?: cs_order_end_date
+    datatype: date
+    show if: cs_order_end["cs_order_end_date_tf"]
+    #max: current_datetime().format_date()
+  - What does it say about when the child support order ends?: cs_order_end_expl
+    datatype: text
+    show if: cs_order_end["cs_order_end_expl_tf"]
+---
+Question: |
+  Has your income gone down since ${most_recent_cs_date}?
+yesno: income_changed
+---
+Question: |
+  Has your child/have your children lived with you since the court ordered you to pay child support?
+yesno: child_lives_w_obligor
+---
+Question: |
+  Did you get back together with ${other_parent.name.first}?
+yesno: reconcile
+---
+
+  
+ 
