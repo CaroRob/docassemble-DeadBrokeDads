@@ -189,62 +189,54 @@ fields:
 section: About you
 ---
 question: |
-  What do you need help with, ${client.name.first}? 
-subquestion: |
-  Check the box next to everything that is true.
-fields:
-  - This Notice of Delinquency is the first I knew I was behind in child support.: prob_knewnot
-    datatype: yesnowide 
-  - DOR is wrong about the amount of child support I owe.: prob_disagreement
-    datatype: yesnowide
-  - I cannot pay all back the child support I owe.: prob_cantafford
-    datatype: yesnowide
-  - I need help like a payment plan to pay the back child support I owe: prob_needplan
-    datatype: yesnowide
-  - I need DOR to waive: prob_waive
-    datatype: checkboxes
-		choices:
-    - interest
-		- penalties
-		-	back child support I owe DOR
-    none of the above: False
-    required: False
-  - DOR has taken action that makes it even harder to pay the child support I owe.: prob_action
-    datatype: yesnowide
----
-question: |
-  What actions has DOR/CSE taken that make it hard for you to pay the child support?
+  What actions has DOR taken that make it hard for you to pay the child support?
 fields:
   - note: Check every box that is true.
-  - DOR/CSE is charging me interest because I did not pay all the child support I owe.: prob_interest
-    datatype: yesnowide
-  - DOR/CSE is charging me penalties because I did not pay all the child support I owe.: prob_penalties
-    datatype: yesnowide
-  - My license was suspended.: prob_lic_suspended
-    datatype: yesnowide
-  - My license was suspended - so I cannot work.: prob_lic_suspended_nowork
-    datatype: yesnowide
-  - DOR/CSE took my tax refund.: prob_refund
-    datatype: yesnowide
-  - DOR/CSE is taking more money out of my pay than they should.: prob_increase
-    datatype: yesnowide
-  - I cannot use the money in my bank because DOR/CSE froze my account.: prob_frozen_account
-    datatype: yesnowide
-  - DOR/CSE took money out of an account that is not my money.: prob_shared_account		
-    datatype: yesnowide		
-  - DOR/CSE took money out of my account when they should not have.: prob_wrong_totake		
-    datatype: yesnowide
-  - DOR/CSE started taking money out my pay.: prob_garnish
-    datatype: yesnowide
-  - I have another problem with DOR/CSE.: prob_other_tf
-    datatype: yesnowide
+  - no label: problem
+    datatype: checkboxes
+    choices:
+      - DOR is charging me interest.: interest
+      - DOR is charging me penalties.: penalties
+      - DOR took my tax refund: refund 
+      - DOR started taking money out my pay: garnish  
+      - DOR is taking more money out of my pay than they should.: garnish_increase
+      - I cannot use the money in my bank because DOR froze my account.: frozen_account
+      - DOR took money out of my bank account.: account
+      - DOR took money out of an account that is not my money.: shared_account			
+      - DOR took my driver's license: driver_license			
+      - DOR suspended my car registration: car_reg			
+      - DOR took my business license: business_license			
+      - DOR took my professional license: professional_license
+      - DOR took my trade license: trade_license
+      - I have another problem with DOR.: other
+    
 ---
 question: |
   What is the other problem you are having with DOR/CSE?
 fields:
-  - no label: prob_other_te 
+  - no label: prob_other
     datatype: area
 ---
+question: |
+  What do you need help with, ${client.name.first}? 
+subquestion: |
+  Check the box next to everything that is true.
+fields:
+  - no label: help_needed
+    datatype: checkboxes
+    choices:
+      - This Notice of Delinquency is the first I knew I was behind in child support.: knewnot
+      - DOR is wrong about the amount of child support I owe.: disagreement
+      - I cannot pay all the back child support I owe.: cant_afford
+      - I cannot keep up with the payments that the Court ordered: cant_sustain
+      - I need help like a payment plan to pay the back child support I owe: needplan
+      - I need DOR to waive interest: waive_interest
+      - I need DOR to waive penalties: waive_penalties
+      - I need DOR to waive back child support I owe DOR: waive_back_support
+      - DOR is causing me hardship: hardship
+      - I need DOR to consider other good reasons: other
+---
+
 question: |
   Custodial parent's name
 subquestion: |
