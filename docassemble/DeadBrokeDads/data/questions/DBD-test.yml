@@ -4,22 +4,15 @@ objects:
 ---
 mandatory: True
 code: |
-  if past_benefits:
-    # get a list of true benefits; we save this so the order is the same
-    your_true_benefits = past_income_items_list.true_values()
-    
-    # say that there are benefits (forces asking questions)
-    your_past_benefits.there_are_any = True
-  else:
-    # no past benefits, the dictionary should be empty
-    your_past_benefits.there_are_any = False
+  # get a static income list
+  your_true_benefits = your_income_list.true_values()
   
+  # only ask about benefits if any listed
+  your_past_benefits.there_are_any = len(your_true_benefits) > 0
+
   # same as above
-  if past_child_benefits:
-    your_children_true_benefits = past_child_income_items_list.true_values()
-    your_children_past_benefits.there_are_any = True
-  else:
-    your_children_past_benefits.there_are_any = False
+  your_children_true_benefits = your_children_income_list.true_values()
+  your_children_past_benefits.there_are_any = len(your_children_true_benefits) > 0
     
   hi
 ---
@@ -30,15 +23,10 @@ code: |
   
   if len(your_past_benefits) < len(your_true_benefits):
     next_item = your_true_benefits[len(your_past_benefits)].upper()
-    
-    # handle the "other" case specially
-    if next_item == "OTHER":
-      your_past_benefits.new_item_name = past_other_benefit
-    else:
-      your_past_benefits.new_item_name = next_item
+    your_past_benefits.new_item_name = next_item
     
     # say that we expect another field (will ask for necessary fields)
-    your_past_benefits.there_is_another = True
+    your_past_benefits.there_is_another = True      
   else:
     # say that no more fields are needed
     your_past_benefits.there_is_another = False
@@ -46,106 +34,76 @@ code: |
 code: |
   if len(your_children_past_benefits) < len(your_children_true_benefits):
     next_item = your_children_true_benefits[len(your_children_past_benefits)].upper()
-    
-    if next_item == "ANOTHER":
-      your_children_past_benefits.new_item_name = past_child_other_benefit
-    else:
-      your_children_past_benefits.new_item_name = next_item
+    your_children_past_benefits.new_item_name = next_item
     
     your_children_past_benefits.there_is_another = True
   else:
     your_children_past_benefits.there_is_another = False
 ---
 question: |
-  Do you or your children get government need-based benefits?
+  Did you ever get any of these benefits?
 fields:
-  - "I get a needs-based benefit": benefits
-    datatype: yesnoradio
-  - "I get": income_items_list
-    show if: benefits
+  - no label: your_income_list
     datatype: checkboxes
     choices:
       - SSI: ssi
       - TAFDC: tafdc
       - EAEDC: eaedc
-      - another benefit: other
-    none of the above: False
-  - "What other benefit or benefits do you get?": other_benefit
-    js show if: |
-       val("benefits") && val("income_items_list['other']")
-  - "I used to get a needs-based benefit": past_benefits
-    datatype: yesnoradio
-  - "I used to get": past_income_items_list
-    show if: past_benefits
-    datatype: checkboxes
-    choices:
-      - SSI: ssi
-      - TAFDC: tafdc
-      - EAEDC: eaedc
-      - another benefit: other
-    none of the above: False
-  - "What other benefit or benefits did you get?": past_other_benefit
-    js show if: |
-       val("past_benefits") && val("past_income_items_list['other']")
-  - "My child(ren) get(s) a needs-based benefit": child_benefits
-    datatype: yesnoradio
-  - "I get": child_income_items_list
-    show if: child_benefits
-    datatype: checkboxes
-    choices:
-      - SSI: ssi
-      - TAFDC: tafdc
-      - EAEDC: eaedc
-      - another benefit: other
-    none of the above: False
-  - "What other benefit or benefits do you get?": child_other_benefit
-    js show if: |
-       val("child_benefits") && val("child_income_items_list['other']")
-  - "My child(ren) get(s) used to get a needs-based benefit": past_child_benefits
-    datatype: yesnoradio
-  - "They used to get": past_child_income_items_list
-    show if: past_child_benefits
-    datatype: checkboxes
-    choices:
-      - SSI: ssi
-      - TAFDC: tafdc
-      - EAEDC: eaedc
-      - another benefit: another
-    none of the above: False
-  - "What other benefit or benefits do you get?": past_child_other_benefit
-    js show if: |
-       val("past_child_benefits") && val('past_child_income_items_list["another"]')
 ---
+question: |
+  About your ${ i } benefit
+fields:
+  - When did your ${ i } start?: your_past_benefits[i].start_date
+    datatype: date
+  - Are you still receiving ${ i }?: your_past_benefits[i].still_receiving
+    datatype: yesnoradio
+  - When did your ${ i } end?: your_past_benefits[i].end_date
+    datatype: date
+    js show if: |
+      val("your_past_benefits[i].still_receiving") === false
+---
+need: your_past_benefits[i].start_date
 question: |
   Did DOR take money from your bank account when you were getting ${ i }?
 fields:
   - no label: your_past_benefits[i].take_money
     datatype: yesnoradio
-  - When did your ${ i } start?: your_past_benefits[i].start_date
-    datatype: date
-    show if: your_past_benefits[i].take_money
-  - When did your ${ i } end?: your_past_benefits[i].end_date
-    datatype: date
-    show if: your_past_benefits[i].take_money
 ---
+question: |
+  Did your children ever get any of these benefits?
+fields:
+  - no label: your_children_income_list
+    datatype: checkboxes
+    choices:
+      - SSI: ssi
+      - TAFDC: tafdc
+      - EAEDC: eaedc
+---
+question: |
+  About your child(ren)'s ${ i } benefit
+fields:
+  - When did your ${ i } start?: your_children_past_benefits[i].start_date
+    datatype: date
+  - Are you still receiving ${ i }?: your_children_past_benefits[i].still_receiving
+    datatype: yesnoradio
+  - When did your ${ i } end?: your_children_past_benefits[i].end_date
+    datatype: date
+    js show if: |
+      val("your_children_past_benefits[i].still_receiving") === false
+---
+need: your_children_past_benefits[i].start_date
 question: |
   Did DOR take money from your bank account when your children were getting ${ i }?
 fields:
   - no label: your_children_past_benefits[i].take_money
     datatype: yesnoradio
-  - When did your ${ i } start?: your_children_past_benefits[i].start_date
-    datatype: date
-    show if: your_children_past_benefits[i].take_money
-  - When did your ${ i } end?: your_children_past_benefits[i].end_date
-    datatype: date
-    show if: your_children_past_benefits[i].take_money
 ---
 question: |
   Hi
 subquestion: |
   Your past benefits:
   % for item in your_past_benefits:
-  ${ item } : ${ your_past_benefits[item].take_money }
+  ${ item } : ${ your_past_benefits[item].take_money }, ${ your_past_benefits[item].start_date }
   % endfor
   
   Your children's past benefits
