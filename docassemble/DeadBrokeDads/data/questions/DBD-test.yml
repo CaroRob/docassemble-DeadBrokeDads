@@ -9,11 +9,47 @@ code: |
   
   # only ask about benefits if any listed
   your_past_benefits.there_are_any = len(your_true_benefits) > 0
+  
+  # force the start date before asking about children
+  if your_past_benefits.there_are_any:
+    for item in your_true_benefits:
+      benefit = your_past_benefits[item]
+
+      if benefit.still_receiving:
+        # this should not be visible;
+        benefit.end = today()
+      else:
+        benefit.end = benefit.end_date
+
+        
 
   # same as above
   your_children_true_benefits = your_children_income_list.true_values()
   your_children_past_benefits.there_are_any = len(your_children_true_benefits) > 0
     
+  if your_children_past_benefits.there_are_any:
+    for item in your_children_true_benefits:
+      benefit = your_children_past_benefits[item]
+
+      if benefit.still_receiving:
+        # this should not be visible;
+        benefit.end = today()
+      else:
+        benefit.end = benefit.end_date
+ 
+  if dor_took_money:
+    took_money_matches_time = False
+    
+    # find if the date is in range for your benefits
+    for benefit in your_past_benefits.values():
+      # not sure if end date is inclusive (it counts) or exclusive (it doesn't)
+      if benefit.start_date <= dor_took_money_date <= benefit.end:
+        took_money_matches_time = True
+
+    # find if the date is in range for your child(ren)'s benefits
+    for benefit in your_children_past_benefits.values():
+      if benefit.start_date <= dor_took_money_date <= benefit.end:
+        took_money_matches_time = True    
   hi
 ---
 code: |
@@ -22,8 +58,7 @@ code: |
   # from your_true_benefits
   
   if len(your_past_benefits) < len(your_true_benefits):
-    next_item = your_true_benefits[len(your_past_benefits)].upper()
-    your_past_benefits.new_item_name = next_item
+    your_past_benefits.new_item_name = your_true_benefits[len(your_past_benefits)]
     
     # say that we expect another field (will ask for necessary fields)
     your_past_benefits.there_is_another = True      
@@ -33,8 +68,7 @@ code: |
 ---
 code: |
   if len(your_children_past_benefits) < len(your_children_true_benefits):
-    next_item = your_children_true_benefits[len(your_children_past_benefits)].upper()
-    your_children_past_benefits.new_item_name = next_item
+    your_children_past_benefits.new_item_name = your_children_true_benefits[len(your_children_past_benefits)]
     
     your_children_past_benefits.there_is_another = True
   else:
@@ -46,9 +80,9 @@ fields:
   - no label: your_income_list
     datatype: checkboxes
     choices:
-      - SSI: ssi
-      - TAFDC: tafdc
-      - EAEDC: eaedc
+      - SSI
+      - TAFDC
+      - EAEDC
 ---
 question: |
   About your ${ i } benefit
@@ -61,13 +95,12 @@ fields:
     datatype: date
     js show if: |
       val("your_past_benefits[i].still_receiving") === false
----
-need: your_past_benefits[i].start_date
-question: |
-  Did DOR take money from your bank account when you were getting ${ i }?
-fields:
-  - no label: your_past_benefits[i].take_money
-    datatype: yesnoradio
+validation code: |
+  if your_past_benefits[i].start_date > today():
+    validation_error("Start date cannot be in the future")
+    
+  if not your_past_benefits[i].still_receiving and your_past_benefits[i].start_date > your_past_benefits[i].end_date:
+    validation_error("Benefit end date should be after start date")
 ---
 question: |
   Did your children ever get any of these benefits?
@@ -75,9 +108,9 @@ fields:
   - no label: your_children_income_list
     datatype: checkboxes
     choices:
-      - SSI: ssi
-      - TAFDC: tafdc
-      - EAEDC: eaedc
+      - SSI
+      - TAFDC
+      - EAEDC
 ---
 question: |
   About your child(ren)'s ${ i } benefit
@@ -90,24 +123,41 @@ fields:
     datatype: date
     js show if: |
       val("your_children_past_benefits[i].still_receiving") === false
+validation code: |
+  if your_children_past_benefits[i].start_date > today():
+    validation_error("Start date cannot be in the future")
+    
+  if not your_children_past_benefits[i].still_receiving and your_children_past_benefits[i].start_date > your_children_past_benefits[i].end_date:
+    validation_error("Benefit end date should be after start date")
 ---
-need: your_children_past_benefits[i].start_date
 question: |
-  Did DOR take money from your bank account when your children were getting ${ i }?
+  Has DOR taken money from your bank account?
 fields:
-  - no label: your_children_past_benefits[i].take_money
+  - no label: dor_took_money
     datatype: yesnoradio
+  - "When did DOR Take money from your account?": dor_took_money_date
+    datatype: date
+    show if: dor_took_money
 ---
 question: |
   Hi
-subquestion: |
-  Your past benefits:
+subquestion: |  
+  % if dor_took_money:
+  ### DOR Notice
+  You said DOR took money from your bank ${ dor_took_money_date }.
+  
+    % if took_money_matches_time:
+    DOR took money from your account while you were receiving a benefit.
+    % endif
+  % endif
+  
+  ### Your past benefits:
   % for item in your_past_benefits:
-  ${ item } : ${ your_past_benefits[item].take_money }, ${ your_past_benefits[item].start_date }
+  ${ item } : ${ your_past_benefits[item].start_date } --  ${ your_past_benefits[item].end }<br>
   % endfor
   
-  Your children's past benefits
+  ### Your children's past benefits:
   % for item in your_children_past_benefits:
-  ${ item } : ${ your_children_past_benefits[item].take_money }
+  ${ item } : ${ your_children_past_benefits[item].start_date } -- ${ your_children_past_benefits[item].end } <br>
   % endfor
 field: hi
