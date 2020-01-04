@@ -73,7 +73,7 @@ code: |
   if dor_cse_notice_court == 'A court that is not in Massachusetts':
     dor_cse_notice_court = other_cs_court
   penalty = arrears_state - arrears_federal
-  if dor_cse_notice_arrears_wrong == None or True:
+  if dor_cse_notice_arrears_wrong or dor_cse_notice_arrears_wrong == None:
     if cs_arrears_mc =='Yes':
       cs_arrears_situ
       cs_arrears_date
@@ -964,7 +964,7 @@ fields:
 question: |
   Do you have letters you can show DOR?
 subquestion: |
- Do you have any letters that show you were getting ${ your_past_benefits } when DOR took the money from your account, ${ dor_took_money_date } ?
+ Do you have any letters that show you were getting benefits when DOR took the money from your account, ${ dor_took_money_date } ?
 field: xbenefit_proof
 ---
 question: |
