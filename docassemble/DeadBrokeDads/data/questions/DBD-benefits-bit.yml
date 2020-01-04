@@ -5,16 +5,17 @@ objects:
 ---
 mandatory: True
 code: |
+  dor_took_money_date
   benefits_dor_took_money.initializeAttribute("yours", DAList.using(there_are_any=False))
   benefits_dor_took_money.initializeAttribute("childrens", DAList.using(there_are_any=False))
-
+  
   # get a static income list
   your_true_benefits = your_income_list.true_values()
   
   # only ask about benefits if any listed
   your_past_benefits.there_are_any = len(your_true_benefits) > 0
   
-   # force the start date before asking about children
+  # force the start date before asking about children
   if your_past_benefits.there_are_any:
     for item in your_true_benefits:
       benefit = your_past_benefits[item]
@@ -22,12 +23,11 @@ code: |
         # this should not be visible;
         benefit.end = today()
       else:
-        benefit.end = benefit.end_date 
-  
+        benefit.end = benefit.end_date
   # same as above
   your_children_true_benefits = your_children_income_list.true_values()
   your_children_past_benefits.there_are_any = len(your_children_true_benefits) > 0
-  
+    
   if your_children_past_benefits.there_are_any:
     for item in your_children_true_benefits:
       benefit = your_children_past_benefits[item]
@@ -36,13 +36,11 @@ code: |
         benefit.end = today()
       else:
         benefit.end = benefit.end_date
- 
   if dor_took_money:
     # these parts have to be separate code blocks, otherwise docassemble does some weird stuff (such as duplicating the first list)
     benefits_dor_took_money.yours.gathered
     benefits_dor_took_money.childrens.gathered
-     
-  xbenefit_proof 
+  hi
 ---
 code: |
   # ask for every value in true_benefits in a pseudo-loop.
@@ -50,7 +48,6 @@ code: |
   # from your_true_benefits
   
   if len(your_past_benefits) < len(your_true_benefits):
-  
     your_past_benefits.new_item_name = your_true_benefits[len(your_past_benefits)]
     
     # say that we expect another field (will ask for necessary fields)
@@ -58,11 +55,9 @@ code: |
   else:
     # say that no more fields are needed
     your_past_benefits.there_is_another = False
-
 ---
 code: |
   if len(your_children_past_benefits) < len(your_children_true_benefits):
-    
     your_children_past_benefits.new_item_name = your_children_true_benefits[len(your_children_past_benefits)]
     
     your_children_past_benefits.there_is_another = True
@@ -86,7 +81,6 @@ code: |
     if benefit.start_date <= dor_took_money_date <= benefit.end:
       benefits_dor_took_money.childrens.append(item)  
   benefits_dor_took_money.childrens.gathered = True
-    
 ---
 question: |
   Did you ever get any of these benefits?
@@ -99,11 +93,11 @@ fields:
       - EAEDC
 ---
 question: |
- When did you get ${ i }?
+  About your ${ i } benefit
 fields:
   - When did your ${ i } start?: your_past_benefits[i].start_date
     datatype: date
-  - Do you still get ${ i }?: your_past_benefits[i].still_receiving
+  - Are you still receiving ${ i }?: your_past_benefits[i].still_receiving
     datatype: yesnoradio
   - When did your ${ i } end?: your_past_benefits[i].end_date
     datatype: date
@@ -115,7 +109,6 @@ validation code: |
     
   if not your_past_benefits[i].still_receiving and your_past_benefits[i].start_date > your_past_benefits[i].end_date:
     validation_error("Benefit end date should be after start date")
-
 ---
 question: |
   Did your children ever get any of these benefits?
@@ -128,13 +121,13 @@ fields:
       - EAEDC
 ---
 question: |
-  When did your child(ren) get ${ i }?
+  About your child(ren)'s ${ i } benefit
 fields:
   - When did your child(ren)'s ${ i } start?: your_children_past_benefits[i].start_date
     datatype: date
-  - Do they still get ${ i }?: your_children_past_benefits[i].still_receiving
+  - Is are your child(ren) still receiving ${ i }?: your_children_past_benefits[i].still_receiving
     datatype: yesnoradio
-  - When did their ${ i } end?: your_children_past_benefits[i].end_date
+  - When did your ${ i } end?: your_children_past_benefits[i].end_date
     datatype: date
     js show if: |
       val("your_children_past_benefits[i].still_receiving") === false
@@ -163,31 +156,39 @@ subquestion: |
   
     % if len(benefits_dor_took_money.yours) > 0:
     DOR took money from you while you were receiving the following ${ "benefit" if len(benefits_dor_took_money.yours) == 1 else "benefits" }: ${ benefits_dor_took_money.yours }
+    % endif
     
-    Do you have any letters that show you were getting ${ benefits_dor_took_money.yours} when DOR took the money from your account, ${ dor_took_money_date } ?
-
+    % if len(benefits_dor_took_money.childrens) > 0:
+    DOR took money from you while your children were receiving the following ${ "benefit" if len(benefits_dor_took_money.childrens) == 1 else "benefits" }: ${ benefits_dor_took_money.childrens }
     % endif
   % endif
-
-
-  Your benefits:
-    
+  
+  ### Your past benefits:
   % for item in your_past_benefits:
-  ${ item } : ${ your_past_benefits[item].start_date } to ${ your_past_benefits[item].end } <br>
-  % endfor
-   
-  Your children's benefits:
-   % for item in your_children_past_benefits:
-  ${ item } : ${ your_children_past_benefits[item].start_date } to ${ your_children_past_benefits[item].end } <br>
+  ${ item } : ${ your_past_benefits[item].start_date } --  ${ your_past_benefits[item].end }<br>
   % endfor
   
-  Testing syntax for Admin review template: 
+  ### Your children's past benefits:
+  % for item in your_children_past_benefits:
+  ${ item } : ${ your_children_past_benefits[item].start_date } -- ${ your_children_past_benefits[item].end } <br>
+  % endfor
   
-  % if len(your_past_benefits) > 0 and your_children_past_benefits['SSI'].still_receiving:
-  I get public assistance benefits and I have a child who receives SSI.
+    Testing syntax for Admin review template: 
+  
+  % if len(your_past_benefits) > 0:
+   % if len(your_children_past_benefits) > 0:
+    ${your_children_past_benefits}
+    
+    % if your_children_past_benefits.any_true('SSI'):
+     child gets SSI. This is appearing even when any.true('SSI') is false. Interview thinks it's true. child doesn't get SSI! Why is this?
+    % else:
+     empty circle I get public assistance and I have a kid who gets benefits but not SSI.
+    % endif:
+   % else:
+    empty circle I get public assistance but kids don't get benefits.
+   % endif:
   % else:
-  empty circle
-  % endif 
+   empty circle - I don't get any public assistance.
+  % endif: 
   
-yesno: xbenefit_proof
----
+field: hi 
