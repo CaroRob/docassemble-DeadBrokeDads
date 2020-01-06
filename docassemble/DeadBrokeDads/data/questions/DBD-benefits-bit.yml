@@ -127,7 +127,7 @@ fields:
     datatype: date
   - Is are your child(ren) still receiving ${ i }?: your_children_past_benefits[i].still_receiving
     datatype: yesnoradio
-  - When did your ${ i } end?: your_children_past_benefits[i].end_date
+  - When did your child(ren)'s ${ i } end?: your_children_past_benefits[i].end_date
     datatype: date
     js show if: |
       val("your_children_past_benefits[i].still_receiving") === false
@@ -176,11 +176,12 @@ subquestion: |
     Testing syntax for Admin review template: 
   
   % if len(your_past_benefits) > 0:
-   % if len(your_children_past_benefits) > 0:
-    ${your_children_past_benefits}
-    
-    % if your_children_past_benefits.any_true('SSI'):
-     child gets SSI. This is appearing even when any.true('SSI') is false. Interview thinks it's true. child doesn't get SSI! Why is this?
+   % if len(your_children_past_benefits) > 0:    
+    % if your_children_income_list['SSI']:
+     child gets or got SSI. 
+     % if your_children_past_benefits['SSI'].still_receiving:
+      Full circle I get public assistance and I have a kid who gets SSI.
+     % endif
     % else:
      empty circle I get public assistance and I have a kid who gets benefits but not SSI.
     % endif:
