@@ -5,7 +5,7 @@ objects:
 ---
 mandatory: True
 code: |
-  dor_took_money_date
+  dor_took_money
   benefits_dor_took_money.initializeAttribute("yours", DAList.using(there_are_any=False))
   benefits_dor_took_money.initializeAttribute("childrens", DAList.using(there_are_any=False))
   
@@ -40,7 +40,8 @@ code: |
     # these parts have to be separate code blocks, otherwise docassemble does some weird stuff (such as duplicating the first list)
     benefits_dor_took_money.yours.gathered
     benefits_dor_took_money.childrens.gathered
-  hi
+  xbenefit_proof
+  user_approves
 ---
 code: |
   # ask for every value in true_benefits in a pseudo-loop.
@@ -93,11 +94,11 @@ fields:
       - EAEDC
 ---
 question: |
-  About your ${ i } benefit
+  When did you get ${ i }?
 fields:
   - When did your ${ i } start?: your_past_benefits[i].start_date
     datatype: date
-  - Are you still receiving ${ i }?: your_past_benefits[i].still_receiving
+  - Do you still get ${ i }?: your_past_benefits[i].still_receiving
     datatype: yesnoradio
   - When did your ${ i } end?: your_past_benefits[i].end_date
     datatype: date
@@ -121,13 +122,13 @@ fields:
       - EAEDC
 ---
 question: |
-  About your child(ren)'s ${ i } benefit
+  When did your child(ren)'s get ${ i }?
 fields:
   - When did your child(ren)'s ${ i } start?: your_children_past_benefits[i].start_date
     datatype: date
-  - Is are your child(ren) still receiving ${ i }?: your_children_past_benefits[i].still_receiving
+  - Do they still get ${ i }?: your_children_past_benefits[i].still_receiving
     datatype: yesnoradio
-  - When did your child(ren)'s ${ i } end?: your_children_past_benefits[i].end_date
+  - When did their ${ i } end?: your_children_past_benefits[i].end_date
     datatype: date
     js show if: |
       val("your_children_past_benefits[i].still_receiving") === false
@@ -148,7 +149,7 @@ fields:
     show if: dor_took_money
 ---
 question: |
-  Hi
+  xbenefit_proof
 subquestion: |  
   % if dor_took_money:
   ### DOR Notice
@@ -156,6 +157,7 @@ subquestion: |
   
     % if len(benefits_dor_took_money.yours) > 0:
     DOR took money from you while you were receiving the following ${ "benefit" if len(benefits_dor_took_money.yours) == 1 else "benefits" }: ${ benefits_dor_took_money.yours }
+    Do you have any letters that show you were getting ${ benefits_dor_took_money.yours} when DOR took the money from your account, ${ dor_took_money_date }?
     % endif
     
     % if len(benefits_dor_took_money.childrens) > 0:
@@ -180,7 +182,10 @@ subquestion: |
     % if your_children_income_list['SSI']:
      child gets or got SSI. 
      % if your_children_past_benefits['SSI'].still_receiving:
+      circle_pub_ssi = 2
       Full circle I get public assistance and I have a kid who gets SSI.
+     % else:
+       circle_pub_ssi = 1
      % endif
     % else:
      empty circle I get public assistance and I have a kid who gets benefits but not SSI.
@@ -192,4 +197,28 @@ subquestion: |
    empty circle - I don't get any public assistance.
   % endif: 
   
-field: hi 
+field: xbenefit_proof
+---
+code: |
+  circle_pub_ssi = 1
+  if len(your_past_benefits) > 0:
+    if len(your_children_past_benefits) > 0:    
+      if your_children_income_list['SSI']:
+        if your_children_past_benefits['SSI'].still_receiving:
+          circle_pub_ssi = 2
+        else:
+          circle_pub_ssi = 1
+---
+mandatory: True
+question: |
+  Here is your document.
+subquestion: |
+  Does it meet your approval?
+yesno: user_approves
+attachment:
+  name: circle test
+  filename: if circle
+  docx template file: if_circle_template_2.docx
+  valid formats:
+    - pdf
+    - docx
