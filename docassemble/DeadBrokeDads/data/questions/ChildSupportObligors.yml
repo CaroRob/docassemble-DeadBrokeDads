@@ -1,0 +1,91 @@
+---
+metadata:
+  title: |
+    Help with DOR collecting back child support
+  short title: |
+    Help with Child Support Arrears
+  description: |
+    An interview to help parents when DOR/CSE is collecting past due child support 
+  authors: |
+    - name: Caroline Robinson
+      organization: Volunteer Lawyers Project
+  revision_date: 2020-02-24
+---
+sections:
+  - Introduction
+  - Notice of Child Support Delinquency
+  - Current child support order
+    - Calculating arrears
+    - Possible causes
+    - Modified child support order
+  - Conclusion
+---
+features:
+  navigation: True
+  progress bar: True
+---
+modules:
+  - docassemble.income
+  - .DBDIncome
+---
+objects:
+  - client: Individual
+  - other_parent: Individual
+  - dor_other_parent: Individual
+  - macourts: MACourtList.using(courts=['probate_and_family_courts'])
+  - benefits_dor_took_money: DAObject
+  - your_past_benefits: DADict.using(object_type=DAObject)
+  - your_children_past_benefits: DADict.using(object_type=DAObject)
+---
+images:
+  notice: Notice of Arrears.png
+  noticetop: DBD_NoticeTop.png
+---
+terms:
+  notice: |
+     [FILE Notice_of_Arrears.png]
+  noticetop: |
+      [FILE DBD_NoticeTop.png]
+---
+default screen parts:
+  continue button label: |
+    Next
+---
+include:
+  - dbd-01-intro.yml
+  - dbd-02-compare.yml
+  - dbd-03-reasons-for-error.yml
+  - dbd-04-reasons-for-problem.yml
+  # - financial_statement.yml
+---
+mandatory: True
+code: |
+  intro_complete
+  comparison_complete
+  if dor_cse_notice_arrears_wrong or dor_cse_notice_arrears_wrong == None:
+    possibilities_complete
+  benefits_complete = True
+  
+  # financial_statement_questions # Defines client, spouse, household, assets, incomes, vehicles, expenses,   
+  get_forms
+  
+ 
+  
+  
+    
+
+---
+mandatory: True
+question: |
+  Here is the second page of the Administrative review.
+subquestion: |
+  Are you ready to see it? 
+yesno: get_forms
+attachment:
+  name: Administrative Review test 2
+  filename: Adminstrative-Review-testing
+  docx template file: admin_review_page2.docx
+  valid formats:
+    - pdf
+    - docx
+---
