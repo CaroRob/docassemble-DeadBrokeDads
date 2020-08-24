@@ -1,0 +1,62 @@
+---
+objects:
+  - children: ChildList.using(ask_number=True, there_are_any = True, complete_attribute = 'complete')
+---
+objects:
+  - children[i].cases: DAlist.using(object_type=DAobject,gather())
+---
+mandatory: True
+question: |
+  % for child in children:
+  * ${child.name.first}
+    * ${child.cases.there_are_any}
+    for case in children[i].cases:
+      * ${case.court_court}
+  % endfor
+---
+mandatory: True
+code: |
+  children[i].cases.there_are_any
+  children[i].cases[j].court_court 
+  children.complete = True
+---
+question: |
+  How many children do you have?
+fields:
+  - no label: children.target_number
+    datatype: integer
+---
+question: |
+   What is your ${ordinal(i)} child's name?
+fields:
+  - First: children[i].name.first
+---
+question: |
+  Was ${children[i]} involved in care or custody cases?
+fields:
+  - no label: children[i].cases.there_are_any
+    datatype: yesnoradio
+---
+question: |
+   Tell me about the case ${children[i]} was involved in.
+fields:
+  - court: children[i].cases[j].court_court
+  - docket: children[i].cases[j].court_docket
+  - status: children[i].cases[j].court_status
+  - party: children[i].cases[j].court_party_role
+    input type: radio
+    choices:
+      - Witness
+      - Party
+      - Other
+      - None
+  - Name of attorney for child: children[i].cases[j].attorney
+---
+question: |
+  Was ${children[i]}  involved in any other cases?
+yesno: children[i].cases[j].there_is_another
+---
+    
+    
+  
+

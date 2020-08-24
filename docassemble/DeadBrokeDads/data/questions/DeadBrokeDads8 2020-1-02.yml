@@ -9,7 +9,7 @@ metadata:
   authors: |
     - name: Caroline Robinson
       organization: Volunteer Lawyers Project
-  revision_date: 2019-09-27
+  revision_date: 2019-12-31
 ---
 sections:
   - Introduction
@@ -27,11 +27,16 @@ features:
 ---
 modules:
   - docassemble.income
+  - .DBDIncome
 ---
 objects:
   - client: Individual
   - other_parent: Individual
+  - dor_other_parent: Individual
   - macourts: MACourtList.using(courts=['probate_and_family_courts'])
+  - benefits_dor_took_money: DAObject
+  - your_past_benefits: DADict.using(object_type=DAObject)
+  - your_children_past_benefits: DADict.using(object_type=DAObject)
 ---
 images:
   notice: Notice of Arrears.png
@@ -52,18 +57,131 @@ default screen parts:
 ---
 mandatory: True
 code: |
-
+  if get_started:
+    get_started2
+  else:
+    kick_out
+  client.name.first
+  if problem.any_true('other'):
+    prob_other_te
+  help_needed
+  other_parent.name.first
+  if child_number > 1:
+    child_te = 'children'
+  else:
+    child_te = 'child'
   if dor_cse_notice_court == 'A court that is not in Massachusetts':
     dor_cse_notice_court = other_cs_court
-  dor_cse_notice_amount_wrong
   penalty = arrears_state - arrears_federal
-  if cs_arrears_mc =='Yes':
-    cs_arrears_date
-    cs_arrears_situ
-    cs_arrears_catch_up
-    court_ordered_cs
-  problem_causes
-  reconcile
+  if dor_cse_notice_amount_wrong:
+    if cs_arrears_mc =='Yes':
+      cs_arrears_situ
+      cs_arrears_date
+      cs_arrears_catch_up
+      court_ordered_cs
+    if cause_missed_hearing:
+      missed_hearing_text = 'missed'
+      missed_hearing_notice
+    if cause_missed_hearing_maybe:
+      missed_hearing_text = 'may have missed'
+      missed_hearing_notice
+    pay_parent
+    if other_need:
+      if filed_to_change:
+        why_did_you = "did you"
+      else:
+        why_did_you = "did you not"
+  # if penalty_request == 'other': (deleted this question)
+    # penalty_other : (deleted this question)
+  # file_within_30 : (deleted this question)
+    cs_order_date
+    if order_modified:
+      most_recent_order = 'most recent '
+      order_modified_date
+    else:
+      most_recent_order = ''
+    if filer != "DOR/CSE":
+      if cse_copy in ['no','maybe']:
+        kick_out
+    cs_order_date
+    cs_order_end
+    if order_modified_date:
+      most_recent_cs_date = order_modified_date
+    else:
+      most_recent_cs_date = cs_order_date
+    if income_changed:
+      income_changed_fired
+  # financial_statement_questions # Defines client, spouse, household, assets, incomes, vehicles, expenses,   
+    child_lives_w_obligor
+    reconcile
+  else:
+    if assigned_is_zero:
+      is_zero
+    else:
+      is_not_zero
+  if problem.any_true('shared_account', 'account'):
+    dor_took_money_date
+  if problem.any_true('shared_account'):
+    if conservator:
+      guardian_order
+  if problem.any_true('account'):
+    benefits_dor_took_money.initializeAttribute("yours", DAList.using(there_are_any=False))
+    benefits_dor_took_money.initializeAttribute("childrens", DAList.using(there_are_any=False))
+  # get a static income list
+  your_true_benefits = your_income_list.true_values()
+  
+  # only ask about benefits if any listed
+  your_past_benefits.there_are_any = len(your_true_benefits) > 0
+  
+  # force the start date before asking about children
+  if your_past_benefits.there_are_any:
+    for item in your_true_benefits:
+      benefit = your_past_benefits[item]
+      if benefit.still_receiving:
+        # this should not be visible;
+        benefit.end = today()
+      else:
+        benefit.end = benefit.end_date 
+  
+  # same as above
+  your_children_true_benefits = your_children_income_list.true_values()
+  your_children_past_benefits.there_are_any = len(your_children_true_benefits) > 0
+  
+  if your_children_past_benefits.there_are_any:
+    for item in your_children_true_benefits:
+      benefit = your_children_past_benefits[item]
+      if benefit.still_receiving:
+        # this should not be visible;
+        benefit.end = today()
+      else:
+        benefit.end = benefit.end_date
+    
+    # these parts have to be separate code blocks, otherwise docassemble does some weird stuff (such as duplicating the first list)
+    benefits_dor_took_money.yours.gathered
+    benefits_dor_took_money.childrens.gathered
+      
+    # if len(benefits_dor_took_money.yours) > 0:
+        account_same
+        xbenefit_proof
+      
+  if other_considerations.any_true('disabled', 'past_disabled'):
+    disability
+    ssdi_now
+  if other_considerations.any_true('unemployment', 'past_unemployment'):
+    unemployment
+  if other_considerations.any_true('incarcerated', 'incarcerated'):
+    jail_house
+    jail_mod
+  if child_lives_w_obligor:
+    child_with_obligor_order
+  if reconcile:
+      if reconciliation.any_true(live-together):
+        reconcilation_te = 'living together'
+        reconcilation_action = 'move in together'
+      else:
+        reconcilation_te = 'married'
+        reconcilation_action = 'get married'
+
 ---
 code: |
   pf_courts = ['Barnstable Probate and Family Court', 'Berkshire Probate and Family Court', 'Bristol Probate and Family Court', 'Brockton Probate and Family Court', 'Dukes Probate and Family Court', 'Essex Probate and Family Court', 'Franklin Probate and Family Court', 'Hampden Probate and Family Court', 'Hampshire Probate and Family Court', 'Middlesex Probate and Family Court', 'Nantucket Probate and Family Court', 'Norfolk Probate and Family Court', 'Plymouth Probate and Family Court', ' Suffolk Probate and Family Court', 'Worcester Probate and Family Court', 'A court that is not in Massachusetts']
@@ -144,61 +262,53 @@ fields:
 section: About you
 ---
 question: |
-  What do you need help with? 
-subquestion: |
-  Check the box next to everything that is true.
-fields:
-  - This Notice of Delinquency is the first I knew I was behind in child support.: prob_knewnot
-    datatype: yesnowide 
-  - DOR is wrong about the amount of child support I owe.: prob_disagreement
-    datatype: yesnowide
-  - I cannot pay all the back child support I owe.: prob_cantafford
-    datatype: yesnowide
-  - I need help like a payment plan to pay the back child support I owe: prob_needplan
-    datatype: yesnowide
-  - I need DOR to waive: prob_waive
-    datatype: checkboxes
-		choices:
-    - interest
-		- penalties
-		-	back child support I owe DOR
-    none of the above: False
-    required: False
-  - DOR has taken action that makes it even harder to pay the child support I owe.: prob_action
-    datatype: yesnowide
----
-question: |
-  What actions has DOR/CSE taken that make it hard for you to pay the child support?
+  What actions has DOR taken that make it hard for you to pay the child support?
 fields:
   - note: Check every box that is true.
-  - DOR/CSE is charging me interest because I did not pay all the child support I owe.: prob_interest
-    datatype: yesnowide
-  - DOR/CSE is charging me penalties because I did not pay all the child support I owe.: prob_penalties
-    datatype: yesnowide
-  - My license was suspended.: prob_lic_suspended
-    datatype: yesnowide
-  - My license was suspended - so I cannot work.: prob_lic_suspended_nowork
-    datatype: yesnowide
-  - DOR/CSE took my tax refund.: prob_refund
-    datatype: yesnowide
-  - DOR/CSE is taking more money out of my pay than they should.: prob_increase
-    datatype: yesnowide
-  - I cannot use the money in my bank because DOR/CSE froze my account.: prob_frozen_account
-    datatype: yesnowide
-  - DOR/CSE took money out of an account that is not my money.: prob_shared_account		
-    datatype: yesnowide		
-  - DOR/CSE took money out of my account when they should not have.: prob_wrong_totake		
-    datatype: yesnowide
-  - DOR/CSE started taking money out my pay.: prob_garnish
-    datatype: yesnowide
-  - I have another problem with DOR/CSE.: prob_other_tf
-    datatype: yesnowide
+  - no label: problem
+    datatype: checkboxes
+    choices:
+      - This Notice of Delinquency is the first I knew I was behind in child support.: knewnot
+      - DOR is charging me interest.: interest
+      - DOR is charging me penalties.: penalties
+      - DOR took my tax refund: refund 
+      - DOR started taking money out my pay: garnish  
+      - DOR is taking more money out of my pay than they should.: garnish_increase
+      - DOR told me the amount of child support I need to pay is going up by 25%: told_me_garnish_increase
+      - DOR told **my employer** the amount of child support I need to pay is going up by 25%: told_boss_garnish_increase
+      - DOR froze my account so I cannot use the money in my bank.: frozen_account
+      - DOR took money out of my bank account.: account
+      - DOR took money out of an account that is not my money.: shared_account			
+      - DOR took my driver's license: driver_license			
+      - DOR suspended my car registration: car_reg			
+      - DOR took my business license: business_license			
+      - DOR took my professional license: professional_license
+      - DOR took my trade license: trade_license
+      - I have another problem with DOR.: other
+    none of the above: False
+    
 ---
 question: |
   What is the other problem you are having with DOR/CSE?
 fields:
-  - no label: prob_other_te 
+  - no label: prob_other
     datatype: area
+---
+question: |
+  What do you need help with, ${client.name.first}? 
+subquestion: |
+  Check the box next to everything that is true.
+fields:
+  - no label: help_needed
+    datatype: checkboxes
+    choices:
+      - DOR is wrong about the amount of child support I owe.: disagreement
+      - I cannot pay all the back child support I owe.: cant_afford
+      - I cannot keep up with the payments that the Court ordered: cant_sustain
+      - I need help like a payment plan to pay the back child support I owe: needplan
+      - I need DOR to waive the money I owe DOR: waive
+      - DOR is causing me hardship: hardship
+      - I need DOR to consider other good reasons: other
 ---
 question: |
   Custodial parent's name
@@ -209,6 +319,14 @@ fields:
   - Middle: other_parent.name.middle
     required: False
   - Last: other_parent.name.last
+---
+question: |
+  Number of children
+subquestion: |
+  How many children is your child support order for?
+fields:
+  - no label: child_number
+    datatype: integer
 ---
 question: |
   What does the Notice of Delinquent Child Support from DOR/CSE say?
@@ -227,20 +345,25 @@ subquestion: |
 fields:
   - 1. What is the date?: notice_date_delinquency
     datatype: date 
-  - 2. What is custodial parent's first name?: other_parent.name.first
-  - 2. What is custodial parent's middle name?: other_parent.name.middle
+  - 2. Is the custodial parent's name **${other_parent.name}**?: other_parent_wrong
+    datatype: noyesradio
+  - 2. What is custodial parent's first name?: dor_other_parent.name.first
+    show if: other_parent_wrong
+  - 2. What is custodial parent's middle name?: dor_other_parent.name.middle
     required: False
-  - 2. What is custodial parent's last name?: other_parent.name.last
-  - 3. What does it say you "owe" $$$?: dor_cse_notice_amount
-    datatype: currency
-  - 4. What name does it give for the court?: dor_cse_notice_court
+    show if: other_parent_wrong
+  - 2. What is custodial parent's last name?: dor_other_parent.name.last
+    show if: other_parent_wrong
+  - What name does it give for the court?: dor_cse_notice_court
     datatype: dropdown
     code: pf_courts 
-  - 5. What does it say the frequency is?: dor_cse_notice_frequency
+  - 3. What does it say you "owe" $$$?: dor_cse_notice_amount
+    datatype: currency
+  - 4. What does it say the frequency is?: dor_cse_notice_frequency
     datatype: number
     code: |
       period_list()
-  - 6. Total past due child support?: dor_cse_notice_arrears
+  - 5. Total past due child support?: dor_cse_notice_arrears
     datatype: currency
     min: 0
 validation code: |
@@ -254,6 +377,18 @@ subquestion: |
   Look at the top of the child support order - the name of the court should be there.
 fields:
   - no label: other_cs_court
+---
+question: |
+  Is DOR/CSE charging you a penalty?
+subquestion: |
+  On page 6, the notice talks about the Special Tax Refund Rule,
+
+  They say, "Here are the amounts we will tell the tax agency you owe now:"
+fields:
+  - What is the State Amount?: arrears_state
+    datatype: currency 
+  - What is the Federal Amount?: arrears_federal
+    datatype: currency 
 ---
 question: |
   Is the Notice of Child Support Delinquency right? 
@@ -271,27 +406,16 @@ fields:
   - What does your latest order say you must pay?: cs_amount
     datatype: currency
     show if: dor_cse_notice_amount_wrong
-  - Does the court order say you must pay ${dor_cse_notice_frequency} : dor_cse_notice_frequency_wrong
+  - Does the court order say you must pay  ${dbd_period_string(dor_cse_notice_frequency)} : dor_cse_notice_frequency_wrong
     datatype: noyesradio   
   - How often does your order say you must pay child support?: cs_frequency
     datatype: number
     code: |
       period_list()
     show if: dor_cse_notice_frequency_wrong
-  - Do you owe ${currency(dor_cse_notice_arrears)} in back child support? : dor_cse_notice_arrears_tf
-    datatype: noyesradio   
----
-question: |
-  Is DOR/CSE charging you a penalty?
-subquestion: |
-  On page 6, the notice talks about the Special Tax Refund Rule,
-
-  They say, "Here are the amounts we will tell the tax agency you owe now:"
-fields:
-  - What is the State Amount?: arrears_state
-    datatype: currency 
-  - What is the Federal Amount?: arrears_federal
-    datatype: currency     
+  - Do you owe ${currency(dor_cse_notice_arrears)} in back child support? : dor_cse_notice_arrears_wrong
+    datatype: noyesmaybe
+  - note: Note on arrears amount. If you do owe back child support, this amount may be different from your calculation because it includes ${currency(arrears_state)} penalties and interest on top of any back child support you owe.
 ---
 question: |
   Did you ever pay late?
@@ -304,12 +428,6 @@ choices:
   - I am not sure
 ---
 question: |
-  When was the first time you fell behind on child support payments?:
-fields:
-  - no label: cs_arrears_date
-    datatype: date
----
-question: |
   Which best describes your situation?
 subquestion: |
   I fell behind because ...
@@ -317,9 +435,15 @@ fields:
   - no label: cs_arrears_situ
     input type: radio
     choices:
-      - I made partial payments: partial
+      - I only made partial payments: partial
       - I paid nothing: nothing
       - sometimes I made partial payments, and sometimes I paid nothing: inconsistent
+---
+question: |
+  When was the first time you fell behind on child support payments?:
+fields:
+  - no label: cs_arrears_date
+    datatype: date
 ---
 question: |
   Were you ever able to catch up?
@@ -328,7 +452,12 @@ yesno: cs_arrears_catch_up
 question: |
   What was the order then?
 subquestion: |
-  When you first fell behind how much and how often were you supposed to be paying child support?
+  When you first fell behind,
+  
+  * how much? and 
+  * how often?
+   
+  were you supposed to be paying child support?
 fields:
   - How much?: court_ordered_cs
     datatype: currency
@@ -340,71 +469,115 @@ fields:
 code: |
   arrears_correct = (int(date_difference(starting=cs_arrears_date, ending=today()).weeks))*((court_ordered_cs * court_ordered_frequency)/12)
 ---
-question: |
-   Did you miss a hearing?
-subquestion: |
-  Did you ever **not go** to a court hearing about child support?
-fields:
-  - no label: missed_hearing
-    datatype: radio
-    choices:
-      - Yes
-      - No
-      - I am not sure
-  - Did you get a notice about the hearing?: missed_hearing_notice
-    choices:
-      - Yes, I got a notice: yes
-      - No, I never got a notice: no
-      - I am not sure if I ever got a notice: maybe
-    js show if: |
-      (val('missed_hearing') == 'Yes') || (val('missed_hearing') == 'I am not sure')
- 
----
-event: problem_causes
+section: Possible causes
 question: |
   Events that may have caused your child support problem
-section: Possible causes 
+subquestion: |
+  Your child support order could have changed and:
+  
+  * you did not know about it, or
+  * DOR/CSE did not know about it.
+  This could explain why the child support order you have and the information on the Notice of Delinquency do not match. 
+
+  Or there may be other reasons.
+
+  Check any box that is true or you **think** could be true.
+fields:
+  - The child support order changed and I did not know about it: cause_mod_unknown_to_client 
+    datatype: yesnowide
+    uncheck others:
+      - cause_none
+  - I missed a child support hearing: cause_missed_hearing 
+    datatype: yesnowide
+    uncheck others:
+      - cause_none
+      - cause_missed_hearing_maybe
+  - I could have missed a child support hearing: cause_missed_hearing_maybe
+    datatype: yesnowide
+    uncheck others:
+      - cause_none
+      - cause_missed_hearing
+  - The child support order changed and DOR/CSE did not know about it: cause_mod_unknown_to_dor 
+    datatype: yesnowide
+    uncheck others:
+      - cause_none
+  - My income changed: cause_income_change
+    datatype: yesnowide
+    uncheck others:
+      - cause_none
+  - ${ other_parent.name.first}'s income changed: cause_other_parent_income_change
+    datatype: yesnowide
+    uncheck others:
+      - cause_none
+      - cause_other_parent_income_change_maybe
+  - ${ other_parent.name.first}'s income may have changed: cause_other_parent_income_change_maybe
+    datatype: yesnowide
+    uncheck others:
+      - cause_none
+      - cause_other_parent_income_change
+  - ${ other_parent.name.first} is now getting TAFDC: cause_other_parent_TAFDC
+    datatype: yesnowide
+    uncheck others:
+      - cause_none
+  - I paid child support to ${ other_parent.name.first} directly, not through DOR/CSE: cause_direct_payment
+    datatype: yesnowide
+    uncheck others:
+      - cause_none
+  - Someone else, not ${ other_parent.name.first}, got custody of one of my children who are covered by this child support order: cause_lost_custody
+    datatype: yesnowide
+    uncheck others:
+      - cause_none
+  - one of my children covered by this child support order moved out of ${ other_parent.name.first}'s home: cause_child_moved
+    datatype: yesnowide
+    uncheck others:
+      - cause_none
+  - I got back together with  ${ other_parent.name.first}: cause_reconciliation
+    datatype: yesnowide
+    uncheck others:
+      - cause_none
+  - Something else caused my child support problem: cause_other
+    datatype: yesnowide
+    uncheck others:
+      - cause_none
+  - None of these are true: cause_none
+    datatype: yesnowide
+    uncheck others:
+      - cause_mod_unknown_to_client
+      - cause_missed_hearing
+      - cause_missed_hearing_maybe
+      - cause_mod_unknown_to_dor
+      - cause_income_change
+      - cause_income_change_maybe
+      - cause_other_parent_income_change
+      - cause_other_parent_income_change_maybe
+      - cause_other_parent_TAFDC
+      - cause_direct_payment
+      - cause_lost_custody
+      - cause_child_moved
+      - cause_reconciliation
+      - cause_other
+
 comment: |
-  Did you miss a child support hearing?
-  Did your income change?
-  Did ${ other_parent.name.first}'s income change?
-  Did ${ other_parent.name.first}'
-  Did someone else get custody of one of your children?
   Did one of the children move
 	  in with you 
 	  in with ${ other_parent.name.first]' parent
 	  out on their own
 	  to live with someone who got a custody order
-  Did you get back together with custodial parent?
   Something else caused my child support problem
-  None of these apply.
 ---
 question: |
-  DOR/CSE is charging you ${penalty} penalty.
-fields:
-  - What do you need DOR/CSE to do about this penalty?: penalty_request
-    input type: radio
-    choices:
-      - charge me no penalty at all: no_penalty
-      - charge me a smaller penalty: smaller
-      - add penalty to a payment plan: plan
-      - Other: other
----
-question: |
-  What do you need DOR/CSE to do about this penalty?
-fields:
-  - no label: penalty_other
----
-question: |
-  Do want to file a request for an administrative review?
+   You missed a hearing?
 subquestion: |
-  If you file an administrative review, the DOR/CSE cannot take any other 
-  enforcement actions until they finish the review. 
-  
-  For example, they 
-  cannot freeze your bank account or suspend your license.
+  You said you ${missed_hearing_text} a hearing about child support.
+
+  Did you get a notice about the hearing?
 fields:
-  - no label: file_within_30
+  - no label: missed_hearing_notice
+    datatype: radio
+    choices:
+      - Yes, I got a notice: yes
+      - No, I never got a notice: no
+      - I am not sure if I ever got a notice: maybe
 ---
 question: |
   Information about your child support order.
@@ -436,11 +609,10 @@ fields:
 question: |
   Has the court changed your child support order since ${cs_order_date}? 
 fields:
-  - no label: order_modified
+  - yesnomaybe: order_modified
     datatype: yesnomaybe
   - How many times has the court changed your child support order since ${cs_order_date}?: order_modified_number 
     datatype: integer
-    show if: order_modified
 ---
 question: |
  Information about your ${most_recent_order} child support order.
@@ -518,7 +690,7 @@ question: |
 yesno: income_changed
 ---
 question: |
-  Has your child/have your children lived with you since the court ordered you to pay child support?
+  Did your ${ child_te } live with you since the court ordered you to pay child support?
 yesno: child_lives_w_obligor
 ---
 question: |
@@ -533,8 +705,8 @@ fields:
     show if: reconcile
     datatype: checkboxes
     choices:
-      - We live together now.: live-together
-      - We are married now.: married
+      - We live together now.: live together now
+      - We are married now.: are married
     none of the above: False
 ---      
 question: |
@@ -590,64 +762,141 @@ subquestion: |
   If you think there is something wrong with the Court order(s) itself, and not DOR, you may need to file something with the Court instead of talking to DOR.
 --- 
 question: |
+  Who do you owe?
+subquestion: |
+  As you know, we cannot help you with back child support you owe ${ other_parent.name.first}, but in some cases we can ask DOR to forgive money you owe DOR. 
+
+  Look at the Child Support Enforcement System Financial Summary Report. [Image of Report showing Assigned / Unassigned]
+
+  Look at the amount for "Assigned". Does it say 'Yes' or 'No'?
+yesno: assigned_is_zero
+---
+question: | 
+  You still owe ${other_parent.name.first}
+subquestion: |
+  But you can ask DOR for help to restore your license, unfreeze your bank account, set up a payment plan etc. dictionary values from problem keys.
+field: is_zero
+---
+question: | 
+  You may be able to ask DOR for an Equitable Adjustment
+subquestion: |
+  DOR can adjust the amount of child support you owe **them** if you had a good reason for being unable to pay. 
+
+  Your answers to the next set of questions will help us explain to DOR why you could not pay the child support you owe.
+
+field: is_not_zero
+---
+question: |
+  When?
+subquestion: |
+  When did DOR take money out of your account?
+fields:
+  - no label: dor_took_money_date
+    datatype: date
+---
+code: |
+  # ask for every value in true_benefits in a pseudo-loop.
+  # every time this code executes, we add one item to your_past_benefits
+  # from your_true_benefits
+  
+  if len(your_past_benefits) < len(your_true_benefits):
+    
+    your_past_benefits.new_item_name = your_true_benefits[len(your_past_benefits)]
+    
+    # say that we expect another field (will ask for necessary fields)
+    your_past_benefits.there_is_another = True      
+  else:
+    # say that no more fields are needed
+    your_past_benefits.there_is_another = False
+
+---
+code: |
+  if len(your_children_past_benefits) < len(your_children_true_benefits):
+    your_children_past_benefits.new_item_name = your_children_true_benefits[len(your_children_past_benefits)]
+    
+    your_children_past_benefits.there_is_another = True
+  else:
+    your_children_past_benefits.there_is_another = False
+---
+code: |
+  for item in your_past_benefits:
+    benefit = your_past_benefits[item]
+    
+    # not sure if end date is inclusive (it counts) or exclusive (it doesn't)
+    if benefit.start_date <= dor_took_money_date <= benefit.end:
+      benefits_dor_took_money.yours.append(item)
+  benefits_dor_took_money.yours.gathered = True
+---
+code: |
+  # find if the date is in range for your child(ren)'s benefits
+  for item in your_children_past_benefits:
+    benefit = your_children_past_benefits[item]
+    
+    if benefit.start_date <= dor_took_money_date <= benefit.end:
+      benefits_dor_took_money.childrens.append(item)  
+  benefits_dor_took_money.childrens.gathered = True
+---
+question: |
+  Did you ever get any of these benefits?
+fields:
+  - no label: your_income_list
+    datatype: checkboxes
+    choices:
+      - SSI
+      - TAFDC
+      - EAEDC
+---
+question: |
+ When did you get ${ i }?
+fields:
+  - When did your ${ i } start?: your_past_benefits[i].start_date
+    datatype: date
+  - Do you still get ${ i }?: your_past_benefits[i].still_receiving
+    datatype: yesnoradio
+  - When did your ${ i } end?: your_past_benefits[i].end_date
+    datatype: date
+    js show if: |
+      val("your_past_benefits[i].still_receiving") === false
+validation code: |
+  if your_past_benefits[i].start_date > today():
+    validation_error("Start date cannot be in the future")
+    
+  if not your_past_benefits[i].still_receiving and your_past_benefits[i].start_date > your_past_benefits[i].end_date:
+    validation_error("Benefit end date should be after start date")
+
+---
+question: |
+  Did your ${ child_te } ever get any of these benefits?
+fields:
+  - no label: your_children_income_list
+    datatype: checkboxes
+    choices:
+      - SSI
+      - TAFDC
+      - EAEDC
+---
+question: |
+  When did your ${ child_te } get ${ i }?
+fields:
+  - When did your ${ child_te }'s ${ i } start?: your_children_past_benefits[i].start_date
+    datatype: date
+  - Do they still get ${ i }?: your_children_past_benefits[i].still_receiving
+    datatype: yesnoradio
+  - When did their ${ i } end?: your_children_past_benefits[i].end_date
+    datatype: date
+    js show if: |
+      val("your_children_past_benefits[i].still_receiving") === false
+validation code: |
+  if your_children_past_benefits[i].start_date > today():
+    validation_error("Start date cannot be in the future")
+    
+  if not your_children_past_benefits[i].still_receiving and your_children_past_benefits[i].start_date > your_children_past_benefits[i].end_date:
+    validation_error("Benefit end date should be after start date")
+
+--- 
+question: |
   What else should DOR know about your situation?
 fields:
-  - "I get a needs-based benefit": benefits
-    datatype: yesnoradio
-  - "I get": income_items_list
-    show if: benefits
-    datatype: checkboxes
-    choices:
-      - SSI: ssi
-      - TAFDC: tafdc
-      - EAEDC: eaedc
-      - another benefit: other
-    none of the above: False
-  - "What other benefit or benefits do you get?": other_benefit
-    js show if: 
-       val("income_items_list['other']")
-  - "I used to get a needs-based benefit": past_benefits
-    datatype: yesnoradio
-  - "I used to get": past_income_items_list
-    show if: past_benefits
-    datatype: checkboxes
-    choices:
-      - SSI: ssi
-      - TAFDC: tafdc
-      - EAEDC: eaedc
-      - another benefit: other
-    none of the above: False
-  - "What other benefit or benefits do you get?": past_other_benefit
-    js show if: 
-       val("past_income_items_list['other']")
-  - "My child(ren) get(s) a needs-based benefit": child_benefits
-    datatype: yesnoradio
-  - "I get": child_income_items_list
-    show if: child_benefits
-    datatype: checkboxes
-    choices:
-      - SSI: ssi
-      - TAFDC: tafdc
-      - EAEDC: eaedc
-      - another benefit: other
-    none of the above: False
-  - "What other benefit or benefits do you get?": child_other_benefit
-    js show if: 
-       val("child_income_items_list['other']")
-  - "My child(ren) get(s) used to get a needs-based benefit": past_child_benefits
-    datatype: yesnoradio
-  - "They used to get": past_child_income_items_list
-    show if: past_child_benefits
-    datatype: checkboxes
-    choices:
-      - SSI: ssi
-      - TAFDC: tafdc
-      - EAEDC: eaedc
-      - another benefit: another
-    none of the above: False
-  - "What other benefit or benefits do you get?": past_child_other_benefit
-    js show if: 
-       val('past_child_income_items_list["another"]')
   - no label: other_considerations
     datatype: checkboxes
     choices:
@@ -657,15 +906,16 @@ fields:
     - I was unemployed: past_unemployment
     - I am in prison or jail: incarcerated
     - I was in prison or jail: past_incarcerated
-    - I am a court-appointed Conservator or Guardian for someone else.: conservator
-    none of the above: true
-  - "Is there anything we have not listed that DOR should know?": other_need
-    input type: radio
-    choices:
-      - Yes: True
-      - No: False
-  - "Please explain": other_needed_info
-    show if: other_need     
+    - None of the above: true
+--- 
+question: |
+  DOR took money that is not yours
+subquestion: |
+  You said DOR took money out of an account that is not your money.
+
+  Are you a court-appointed Conservator or Guardian for someone else?
+yesno: conservator
+     
 ---
 question: |
   What else should DOR know about your situation?
@@ -699,7 +949,7 @@ fields:
 question: | 
   DOR is taking money from your bank account
 subquestion: |
-  Is the bank account DOR took money from the **same account** your benefits are deposited into?
+  Is the bank account DOR took money from the **same account** your ${ your_past_benefits } benefits are deposited into?
 fields: 
   - no label: account_same
     datatype: radio
@@ -709,32 +959,23 @@ fields:
   - Did the money DOR took come from the benefits?: benefits_used
     show if: account_same
     datatype: yesnoradio
-  - What was the date DOR took money from your account?: DOR_take_date
-    datatype: date
+  - note: CR -How can our users actually answer this question?
 ---
 question: |
-  About the benefit
+  Do you have letters you can show DOR?
 subquestion: |
-  Did DOR take money from the bank account for your x benefit when you were getting x benefits?
-fields:
-  - When did you start getting x benefit?: xbenefit_start
-  - When did you stop getting x benefit?: xbenefit_end
-    show if: xbenefit_ended
-  - Do you have a letter from y that says z was getting x benefit at the time DOR took the money from your account?: xbenefit_proof
-  - note: Need to change language in last field.
+ Do you have any letters that show you were getting ${ your_past_benefits } when DOR took the money from your account, ${ dor_took_money_date } ?
+field: xbenefit_proof
 ---
 question: |
   Hardship
 subquestion: |
-  You said "DOR is causing me hardship", or
-  "DOR taking the money from my bank account has caused me a hardship.”
+  You said "DOR is causing me hardship", or "DOR taking the money from my bank account has caused me a hardship.”
   
   Did DOR or your employer tell you that the amount you are paying for child support is going up by 25%? 
 fields:
   - no label: twenty_five_percent
-    choices:
-      - Yes: true
-      - No: false
+    datatype: yesnoradio
   - Explain the {hardship}: hardship_text
     datatype: area
     show if: twenty_five_percent
@@ -744,16 +985,16 @@ terms:
   hardship: |
     Some examples of hardship are:
     
-    * I cannot pay rent.
-    * I will be evicted.
-    * I am being evicted.
+    * I cannot pay for groceries.
+    * I cannot pay for medication I need.
     * I cannot pay my utilities.
     * My utilities will be shut off.
     * My utilies have been shut off.
+    * I cannot pay rent.
+    * I will be evicted.
+    * I am being evicted.
     * I cannot pay my mortgage.
-    * My house will be foreclosed on
-    * I cannot pay for groceries.
-    * I cannot pay for medication I need.
+    * My house will be foreclosed on.
 ---
 question: |
   Proof of hardship
@@ -784,11 +1025,7 @@ fields:
   - Did the money DOR take belong to this other person?: DOR_take_ward_money
     datatype: yesnoradio
     show if: DOR_take_ward_account
-  - When did DOR take money from this bank account?: DOR_take_wardmoney_date
-    datatype: date
-    show if: DOR_take_ward_account
 ---
-mandatory: true
 question: |
   Disability
 subquestion: |
@@ -802,9 +1039,8 @@ fields:
     datatype: date
   - When did your disability end?: disability_end
     datatype: date
-  - While you were disabled, did you file something with the court to ask them to change the child support order?: disability_mod
+  - While you were disabled, did you ask the court to change the child support order?: disability_mod
     datatype: yesnoradio
-  - note: suggested language change - Did you ask the court to change the child support order because you were disabled?
   - Why did you file in Court?: mod_dis_reason
     datatype: area
     show if: disability_mod
@@ -901,10 +1137,10 @@ subquestion: |
 fields: 
   - no label: child_with_obligor_order
     datatype: yesnoradio
-  - Do you any other written proof that shows the child or children have moved in with you?: child_with_obligor_proof
+  - Do you any other written proof that shows your child or children moved in with you?: child_with_obligor_proof
     datatype: yesnoradio
     show if: child_with_obligor_order
-  - Do you any written proof that shows the child or children have moved in with you?: child_with_obligor_proof
+  - Do you any written proof that shows your child or children moved in with you?: child_with_obligor_proof
     datatype: yesnoradio
     js show if:
       val('child_with_obligor_order') === false
@@ -912,12 +1148,12 @@ fields:
 question: |
   Getting back together with ${other_parent.name.first}
 subquestion: |
-  You said you got back together with ${other_parent.name.first} and you are now living-together/married.
+  You said you got back together with ${other_parent.name.first} and you are now ${ reconcilation_te }.
 
-  When did you you move in together/get married?
+  When did you you ${ reconcilation_action }?
 fields:
   - no label: reconcile_date
     datatype: date
-  - Do you have court order that ends child support?: reconcile_end_orderdate
+  - Do you have a court order that ends child support?: reconcile_end_orderdate
     datatype: yesnoradio
 ---

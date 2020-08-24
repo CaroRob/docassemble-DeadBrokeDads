@@ -1,0 +1,193 @@
+objects:
+  - benefits_dor_took_money: DAObject
+  - your_past_benefits: DADict.using(object_type=DAObject)
+  - your_children_past_benefits: DADict.using(object_type=DAObject)
+---
+mandatory: True
+code: |
+  benefits_dor_took_money.initializeAttribute("yours", DAList.using(there_are_any=False))
+  benefits_dor_took_money.initializeAttribute("childrens", DAList.using(there_are_any=False))
+
+  # get a static income list
+  your_true_benefits = your_income_list.true_values()
+  
+  # only ask about benefits if any listed
+  your_past_benefits.there_are_any = len(your_true_benefits) > 0
+  
+   # force the start date before asking about children
+  if your_past_benefits.there_are_any:
+    for item in your_true_benefits:
+      benefit = your_past_benefits[item]
+      if benefit.still_receiving:
+        # this should not be visible;
+        benefit.end = today()
+      else:
+        benefit.end = benefit.end_date 
+  
+  # same as above
+  your_children_true_benefits = your_children_income_list.true_values()
+  your_children_past_benefits.there_are_any = len(your_children_true_benefits) > 0
+  
+  if your_children_past_benefits.there_are_any:
+    for item in your_children_true_benefits:
+      benefit = your_children_past_benefits[item]
+      if benefit.still_receiving:
+        # this should not be visible;
+        benefit.end = today()
+      else:
+        benefit.end = benefit.end_date
+ 
+  if dor_took_money:
+    # these parts have to be separate code blocks, otherwise docassemble does some weird stuff (such as duplicating the first list)
+    benefits_dor_took_money.yours.gathered
+    benefits_dor_took_money.childrens.gathered
+     
+  xbenefit_proof 
+---
+code: |
+  # ask for every value in true_benefits in a pseudo-loop.
+  # every time this code executes, we add one item to your_past_benefits
+  # from your_true_benefits
+  
+  if len(your_past_benefits) < len(your_true_benefits):
+  
+    your_past_benefits.new_item_name = your_true_benefits[len(your_past_benefits)]
+    
+    # say that we expect another field (will ask for necessary fields)
+    your_past_benefits.there_is_another = True      
+  else:
+    # say that no more fields are needed
+    your_past_benefits.there_is_another = False
+
+---
+code: |
+  if len(your_children_past_benefits) < len(your_children_true_benefits):
+    
+    your_children_past_benefits.new_item_name = your_children_true_benefits[len(your_children_past_benefits)]
+    
+    your_children_past_benefits.there_is_another = True
+  else:
+    your_children_past_benefits.there_is_another = False
+---
+code: |
+  for item in your_past_benefits:
+    benefit = your_past_benefits[item]
+    
+    # not sure if end date is inclusive (it counts) or exclusive (it doesn't)
+    if benefit.start_date <= dor_took_money_date <= benefit.end:
+      benefits_dor_took_money.yours.append(item)
+  benefits_dor_took_money.yours.gathered = True
+---
+code: |
+  # find if the date is in range for your child(ren)'s benefits
+  for item in your_children_past_benefits:
+    benefit = your_children_past_benefits[item]
+    
+    if benefit.start_date <= dor_took_money_date <= benefit.end:
+      benefits_dor_took_money.childrens.append(item)  
+  benefits_dor_took_money.childrens.gathered = True
+    
+---
+question: |
+  Did you ever get any of these benefits?
+fields:
+  - no label: your_income_list
+    datatype: checkboxes
+    choices:
+      - SSI
+      - TAFDC
+      - EAEDC
+---
+question: |
+ When did you get ${ i }?
+fields:
+  - When did your ${ i } start?: your_past_benefits[i].start_date
+    datatype: date
+  - Do you still get ${ i }?: your_past_benefits[i].still_receiving
+    datatype: yesnoradio
+  - When did your ${ i } end?: your_past_benefits[i].end_date
+    datatype: date
+    js show if: |
+      val("your_past_benefits[i].still_receiving") === false
+validation code: |
+  if your_past_benefits[i].start_date > today():
+    validation_error("Start date cannot be in the future")
+    
+  if not your_past_benefits[i].still_receiving and your_past_benefits[i].start_date > your_past_benefits[i].end_date:
+    validation_error("Benefit end date should be after start date")
+
+---
+question: |
+  Did your children ever get any of these benefits?
+fields:
+  - no label: your_children_income_list
+    datatype: checkboxes
+    choices:
+      - SSI
+      - TAFDC
+      - EAEDC
+---
+question: |
+  When did your child(ren) get ${ i }?
+fields:
+  - When did your child(ren)'s ${ i } start?: your_children_past_benefits[i].start_date
+    datatype: date
+  - Do they still get ${ i }?: your_children_past_benefits[i].still_receiving
+    datatype: yesnoradio
+  - When did their ${ i } end?: your_children_past_benefits[i].end_date
+    datatype: date
+    js show if: |
+      val("your_children_past_benefits[i].still_receiving") === false
+validation code: |
+  if your_children_past_benefits[i].start_date > today():
+    validation_error("Start date cannot be in the future")
+    
+  if not your_children_past_benefits[i].still_receiving and your_children_past_benefits[i].start_date > your_children_past_benefits[i].end_date:
+    validation_error("Benefit end date should be after start date")
+---
+question: |
+  Has DOR taken money from your bank account?
+fields:
+  - no label: dor_took_money
+    datatype: yesnoradio
+  - "When did DOR Take money from your account?": dor_took_money_date
+    datatype: date
+    show if: dor_took_money
+---
+question: |
+  Hi
+subquestion: |  
+  % if dor_took_money:
+  ### DOR Notice
+  You said DOR took money from your bank ${ dor_took_money_date }.
+  
+    % if len(benefits_dor_took_money.yours) > 0:
+    DOR took money from you while you were receiving the following ${ "benefit" if len(benefits_dor_took_money.yours) == 1 else "benefits" }: ${ benefits_dor_took_money.yours }
+    
+    Do you have any letters that show you were getting ${ benefits_dor_took_money.yours} when DOR took the money from your account, ${ dor_took_money_date } ?
+
+    % endif
+  % endif
+
+
+  Your benefits:
+    
+  % for item in your_past_benefits:
+  ${ item } : ${ your_past_benefits[item].start_date } to ${ your_past_benefits[item].end } <br>
+  % endfor
+   
+  Your children's benefits:
+   % for item in your_children_past_benefits:
+  ${ item } : ${ your_children_past_benefits[item].start_date } to ${ your_children_past_benefits[item].end } <br>
+  % endfor
+  
+  Testing syntax for Admin review template: 
+  
+  % if len(your_past_benefits) > 0 and your_children_past_benefits['SSI'].still_receiving:
+  I get public assistance benefits and I have a child who receives SSI.
+  % else:
+  empty circle
+  % endif 
+  
+yesno: xbenefit_proof
+---
