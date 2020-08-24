@@ -1,0 +1,30 @@
+mandatory: true
+question: |
+  Hardship
+subquestion: |
+  You said "DOR is causing me hardship", or "DOR taking the money from my bank account has caused me a hardship.”
+  
+  Did DOR or your employer tell you that the amount you are paying for child support is going up by 25%? 
+fields:
+  - no label: twenty_five_percent
+    datatype: yesnoradio
+  - Explain the {hardship}: hardship_text
+    datatype: area
+    show if: twenty_five_percent
+  - note: Click or tap "{hardship}" to see some examples.
+    show if: twenty_five_percent 
+terms: 
+  hardship: |
+    Some examples of hardship are:
+    
+    * I cannot pay for groceries.
+    * I cannot pay for medication I need.
+    * I cannot pay my utilities.
+    * My utilities will be shut off.
+    * My utilies have been shut off.
+    * I cannot pay rent.
+    * I will be evicted.
+    * I am being evicted.
+    * I cannot pay my mortgage.
+    * My house will be foreclosed on.
+---

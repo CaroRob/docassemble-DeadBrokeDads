@@ -1,0 +1,27 @@
+question: |
+  Fall behind?
+subquestion: |
+  'if not' in code gives values for both No and I don't know.
+  
+  'Else' after 'if not' gives values for yes.
+  
+  If we wanted to give unique values for each answer the syntax would be double equals signs (==) False and None.
+  
+  We can just write 'if variable:' for condition for True value.
+fields:
+  - Did you ever fall behind in child support payments?: fall_behind
+    datatype: yesnomaybe
+---
+code: |
+  if not fall_behind:
+    fall_behind_text = "What answer did we pick to get a value for if not?"
+  else:
+    fall_behind_text = "Does this value for text fix error for answer is Yes?"
+---
+mandatory: true
+question: |
+  Value of fall behind variable
+subquestion: |
+  The value of fall_behind is: ${fall_behind}
+  
+  The value of fall_behind_text: is ${fall_behind_text}

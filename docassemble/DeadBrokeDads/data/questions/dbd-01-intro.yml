@@ -1,23 +1,28 @@
 ---
+include:
+  - dbd-01a-hardships-to-sentences.yml
+---
 code: |
   if get_started:
     client.name.first
   else:
     kick_out
-  if problem.any_true('other'):
+  if problems.any_true('other'):
     prob_other
+    other_need = True
   if help_needed.any_true('cant-afford', 'cant-sustain'):
-    hardship
-  if problem.any_true('told-me-garnish-increase', 'told-boss-garnish-increase', ) and hardship.any_true():
-    twenty_five_percent = True
-  if problem.any_true('driver-license', 'car-reg'):
+    hardships  
+  # if help_needed.any_true('needplan'):
+    # need_offer
+  if problems.any_true('told-me-garnish-increase', 'told-boss-garnish-increase'): 
+    if hardships.any_true():
+      twenty_five_percent = True
+  if problems.any_true('driver-license', 'car-reg'):
     comment_car
-  if problem.any_true('business-license', 'professional-license', 'trade-license'):
+  if problems.any_true('business-license', 'professional-license', 'trade-license'):
     comment_license
-
+  open_text_paragraph_one_complete
   intro_complete = True
-
-
 ---
 section: Introduction
 question: | 
@@ -71,7 +76,7 @@ question: |
   What actions has DOR taken that make it hard for you to pay the child support?
 fields:
   - note: Check every box that is true.
-  - no label: problem
+  - no label: problems
     datatype: checkboxes
     choices:
       - This Notice of Delinquency is the first I knew I was behind in child support.: knewnot
@@ -116,9 +121,9 @@ fields:
 question: |
   Explain what you cannot afford
 subquestion: |
-  We all mean different things when we say we "cannot afford" something. If you are struggling with anything in the list below, check the box to tell the DOR/CSE that you are suffering "hardship."
+  We all mean different things when we say we "cannot afford" something. If you are struggling with anything in the list below, check the box to tell the DOR/CSE that you are suffering "hardship"
 fields:
-  - no label: hardship
+  - no label: hardships
     datatype: checkboxes
     choices:  
       - I cannot pay for groceries.: groceries
@@ -132,7 +137,6 @@ fields:
       - I cannot pay my mortgage.: mortgage
       - My house will be foreclosed on.: foreclosure-fear
       - I am being forced to stay with an abusive partner: abuse
-      - 
       - I cannot pay for some other basic need.: other
 ---
 question: |
@@ -142,14 +146,26 @@ subquestion: |
 fields:
     - no label: comment_car
 under: |
-  I cannot pick up my child, I cannot get to work so I cannot earn money for basic needs and child support.
+  For example, "I cannot pick up my ${ child_te }.  I cannot get to work so I cannot earn money for basic needs and child support."
 ---
 question: |
-  I cannot work!
+  I need my license!
 subquestion: |
   Explain to DOR why taking your license is causing you a problem.
 fields:
     - no label: comment_license
 under: |
-  For example, I need my license to work so I can earn money to pay for my basic needs and child support.
+  For example, "I need my license to work so I can earn money to pay for my basic needs and child support."
 ---
+question: |
+  Offer in Settlement
+subquestion: |
+  You may be able to make a “settlement” with DOR/CSE for past-due child support.  DOR/CSE will **not** make a settlement with you about past-due child support you owe ${ other_parent.name.first }. 
+  
+  See <a href="https://www.masslegalhelp.org/children-and-families/child-support-dor/pay-past-due" target="_blank">Can DOR/CSE let me pay less past-due child support than I owe?</a> to learn more.
+  
+  We cannot help you with the Offer in Settlement Application form right now, but we can help you complete the Statement of Financial Condition which you need to file along with the Offer in Settlement.
+  
+  Do you want to work on the Statement of Financial Condition?
+  
+yesno: need_offer

@@ -1,0 +1,177 @@
+objects:
+  - your_past_benefits: DADict.using(object_type=DAObject)
+  - your_children_past_benefits: DADict.using(object_type=DAObject)
+---
+mandatory: True
+code: |
+  # get a static income list
+  your_true_benefits = your_income_list.true_values()
+  
+  # only ask about benefits if any listed
+  your_past_benefits.there_are_any = len(your_true_benefits) > 0
+  
+   # force the start date before asking about children
+  if your_past_benefits.there_are_any:
+    for item in your_true_benefits:
+      benefit = your_past_benefits[item]
+      if benefit.still_receiving:
+        # this should not be visible;
+        benefit.end = today()
+      else:
+        benefit.end = benefit.end_date 
+  
+  # same as above
+  your_children_true_benefits = your_children_income_list.true_values()
+  your_children_past_benefits.there_are_any = len(your_children_true_benefits) > 0
+  
+  if your_children_past_benefits.there_are_any:
+    for item in your_children_true_benefits:
+      benefit = your_children_past_benefits[item]
+      if benefit.still_receiving:
+        # this should not be visible;
+        benefit.end = today()
+      else:
+        benefit.end = benefit.end_date
+ 
+  if dor_took_money:
+    took_money_matches_time = False
+    
+    # find if the date is in range for your benefits
+    for benefit in your_past_benefits.values():
+      # not sure if end date is inclusive (it counts) or exclusive (it doesn't)
+      if benefit.start_date <= dor_took_money_date <= benefit.end:
+        took_money_matches_time = True
+    # find if the date is in range for your child(ren)'s benefits
+    for benefit in your_children_past_benefits.values():
+      if benefit.start_date <= dor_took_money_date <= benefit.end:
+        took_money_matches_time = True    
+  xbenefit_proof 
+---
+code: |
+  # ask for every value in true_benefits in a pseudo-loop.
+  # every time this code executes, we add one item to your_past_benefits
+  # from your_true_benefits
+  
+  if len(your_past_benefits) < len(your_true_benefits):
+    next_item = your_true_benefits[len(your_past_benefits)].upper()
+    your_past_benefits.new_item_name = next_item
+    
+    # say that we expect another field (will ask for necessary fields)
+    your_past_benefits.there_is_another = True      
+  else:
+    # say that no more fields are needed
+    your_past_benefits.there_is_another = False
+
+---
+code: |
+  if len(your_children_past_benefits) < len(your_children_true_benefits):
+    next_item = your_children_true_benefits[len(your_children_past_benefits)].upper()
+    your_children_past_benefits.new_item_name = next_item
+    
+    your_children_past_benefits.there_is_another = True
+  else:
+    your_children_past_benefits.there_is_another = False
+    your_children_past_benefits.complete = True
+---
+question: |
+  Did you ever get any of these benefits?
+fields:
+  - no label: your_income_list
+    datatype: checkboxes
+    choices:
+      - SSI: ssi
+      - TAFDC: tafdc
+      - EAEDC: eaedc
+---
+question: |
+ When did you get ${ i }?
+fields:
+  - When did your ${ i } start?: your_past_benefits[i].start_date
+    datatype: date
+  - Do you still get ${ i }?: your_past_benefits[i].still_receiving
+    datatype: yesnoradio
+  - When did your ${ i } end?: your_past_benefits[i].end_date
+    datatype: date
+    js show if: |
+      val("your_past_benefits[i].still_receiving") === false
+validation code: |
+  if your_past_benefits[i].start_date > today():
+    validation_error("Start date cannot be in the future")
+    
+  if not your_past_benefits[i].still_receiving and your_past_benefits[i].start_date > your_past_benefits[i].end_date:
+    validation_error("Benefit end date should be after start date")
+
+---
+question: |
+  Did your children ever get any of these benefits?
+fields:
+  - no label: your_children_income_list
+    datatype: checkboxes
+    choices:
+      - SSI: ssi
+      - TAFDC: tafdc
+      - EAEDC: eaedc
+---
+question: |
+  When did your child(ren) get ${ i }?
+fields:
+  - When did your child(ren)'s ${ i } start?: your_children_past_benefits[i].start_date
+    datatype: date
+  - Do they still get ${ i }?: your_children_past_benefits[i].still_receiving
+    datatype: yesnoradio
+  - When did their ${ i } end?: your_children_past_benefits[i].end_date
+    datatype: date
+    js show if: |
+      val("your_children_past_benefits[i].still_receiving") === false
+validation code: |
+  if your_children_past_benefits[i].start_date > today():
+    validation_error("Start date cannot be in the future")
+    
+  if not your_children_past_benefits[i].still_receiving and your_children_past_benefits[i].start_date > your_children_past_benefits[i].end_date:
+    validation_error("Benefit end date should be after start date")
+---
+need: your_children_past_benefits[i].start_date
+question: |
+  Did DOR take money from your bank account when your children were getting ${ i }?
+fields:
+  - no label: your_children_past_benefits[i].take_money
+    datatype: yesnoradio
+---
+question: |
+  Has DOR taken money from your bank account?
+fields:
+  - no label: dor_took_money
+    datatype: yesnoradio
+  - "When did DOR Take money from your account?": dor_took_money_date
+    datatype: date
+    show if: dor_took_money
+---
+question: |
+  Hi
+subquestion: |  
+  % if dor_took_money:
+  ### DOR Notice
+  You said DOR took money from your bank ${ dor_took_money_date }.
+  
+    % if took_money_matches_time:
+    DOR took money from your account while you were receiving a benefit.
+    
+    Do you have any letters that show you were getting ${ your_past_benefits } when DOR took the money from your account, ${ dor_took_money_date } ?
+
+    % endif
+  % endif
+
+
+  Your benefits:
+    
+  % for item in your_past_benefits:
+  ${ item } : ${ your_past_benefits[item].start_date } to ${ your_past_benefits[item].end } <br>
+  % endfor
+   
+  Your children's benefits:
+  % for item in your_children_past_benefits:
+  ${ item } : ${ your_children_past_benefits[item].start_date } to ${ your_children_past_benefits[item].end } <br>
+  % endfor
+  
+yesno: xbenefit_proof
+---

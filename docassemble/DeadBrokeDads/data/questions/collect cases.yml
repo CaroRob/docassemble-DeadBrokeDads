@@ -1,0 +1,34 @@
+---
+objects:
+ - cases: DAList.using(object_type=DAobject)
+---
+mandatory: True
+question: |
+  Information retrieved
+subquestion: |
+  The cases are:
+  * ${cases.court}
+    ${cases.docket}
+    ${cases.status}
+    ${cases.parent_role}
+
+buttons:
+  - Restart: restart
+---
+question: |
+  Does child have any cases?
+yesno: cases.there_are_any
+---
+question: |
+  Does child have any cases other than ${cases.court_docket}?
+yesno: cases.there_is_another
+---
+question: |
+  Tell me about your child's ${ordinal(i)} case
+fields:
+  - Court: cases[i].court
+  - Docket: cases[i].docket
+  - Status: cases[i].status
+  - Parent: cases[i].parent_role
+---
+

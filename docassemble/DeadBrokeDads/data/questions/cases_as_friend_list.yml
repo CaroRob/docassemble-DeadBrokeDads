@@ -1,0 +1,52 @@
+---
+objects:
+  - pumpkins: DADict
+---
+mandatory: True
+code: |
+  pumpkins.object_type = DAObject
+  pumpkins.there_are_any = true
+  pumpkins.gather ()
+---
+comment: |
+  mandatory: True
+  question: |
+    Your child's pumpkins
+  subquestion: |
+    % for x in pumpkins:
+      * pumpkin was in ${ x.court } court
+    % endfor
+---
+code: |
+  pumpkins[i].court
+  pumpkins[i].docket
+  pumpkins[i].status
+  pumpkins[i].role
+  pumpkins[i].complete = True
+---
+question: |
+  In what court was your child's ${ ordinal(i) }
+  pumpkin held?
+fields:
+  - First Name: pumpkins[i].court
+---
+question: |
+  What is the docket number?
+fields:
+  - Docket number: pumpkins[i].docket
+---
+question: |
+  What is the status of that pumpkin with 
+  ${ pumpkins[i].docket } number?
+fields:
+  - Status: pumpkins[i].status
+---
+question: |
+  What was your role in that pumpkin with 
+  ${ pumpkins[i].docket } number?
+fields:
+  - Status: pumpkins[i].role
+---
+question: |
+  Was your child in any pumpkins?
+yesno: pumpkins.there_is_another

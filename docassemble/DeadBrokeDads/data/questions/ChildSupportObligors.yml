@@ -9,7 +9,7 @@ metadata:
   authors: |
     - name: Caroline Robinson
       organization: Volunteer Lawyers Project
-  revision_date: 2020-02-24
+  revision_date: 2020-03-09
 ---
 sections:
   - Introduction
@@ -53,10 +53,14 @@ default screen parts:
 ---
 include:
   - dbd-01-intro.yml
+  - dbd-01a-hardships-to-sentences.yml
   - dbd-02-compare.yml
   - dbd-03-reasons-for-error.yml
-  - dbd-04-reasons-for-problem.yml
-  # - financial_statement.yml
+  - dbd-04-reasons-for-review.yml
+  - dbd-05-other-considerations.yml
+  - dbd-06-form-decisions.yml
+  - dbd-07-shared-form-info.yml
+#  - dbdx.yml
 ---
 mandatory: True
 code: |
@@ -64,9 +68,10 @@ code: |
   comparison_complete
   if dor_cse_notice_arrears_wrong or dor_cse_notice_arrears_wrong == None:
     possibilities_complete
-  benefits_complete = True
-  
-  # financial_statement_questions # Defines client, spouse, household, assets, incomes, vehicles, expenses,   
+  reasons_for_review_complete
+  other_considerations_complete  
+  form_decisions_complete
+  shared_form_info_complete
   get_forms
   
  
@@ -75,17 +80,15 @@ code: |
     
 
 ---
-mandatory: True
 question: |
-  Here is the second page of the Administrative review.
-subquestion: |
-  Are you ready to see it? 
-yesno: get_forms
+  Here are your forms!
 attachment:
-  name: Administrative Review test 2
-  filename: Adminstrative-Review-testing
-  docx template file: admin_review_page2.docx
+  name: Help for Child Support obligor parents
+  filename: help-for-parents
+  docx template file: admin_review_page2_2.docx
+#  docx template file: help_for_obligors-test4.docx
   valid formats:
     - pdf
     - docx
+event: get_forms
 ---
