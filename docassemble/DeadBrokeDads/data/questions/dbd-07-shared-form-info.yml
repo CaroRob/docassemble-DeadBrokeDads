@@ -1,13 +1,13 @@
+# ---
+# objects: 
+#   - client: Individual
+# ---
+# modules:
+#   - docassemble.ssa.ssa
 ---
-objects: 
-  - client: Individual
----
-modules:
-  - docassemble.ssa.ssa
----
-mandatory: True
+# mandatory: True
 code: |
-  admin_review
+  # admin_review
   client.address.address
   client.homephone
   if equit_adjust:
@@ -16,22 +16,25 @@ code: |
     client.dl
     fin_statement = True
   client.ssn
+  signature_date
+  if sign_on_device:
+    signature
   
   shared_form_info_complete = True
 ---
-id: pick forms
-question: |
-  Forms
-subquestion: |
-  Which forms do you need?
-fields:
-  - admin review: admin_review
-    datatype: yesnowide
-  - bank levy: bank_levy
-    datatype: yesnowide
-  - equit  adjust: equit_adjust
-    datatype: yesnowide
----
+# id: pick forms
+# question: |
+#   Forms
+# subquestion: |
+#   Which forms do you need?
+# fields:
+#   - admin review: admin_review
+#     datatype: yesnowide
+#   - bank levy: bank_levy
+#     datatype: yesnowide
+#   - equit  adjust: equit_adjust
+#     datatype: yesnowide
+# ---
 id: client address
 question: |
   What is your current address?
@@ -98,14 +101,20 @@ subquestion: |
 fields: 
   - date: signature_date
     datatype: date
-    default: today()
+    default: ${today().format("yyyy-MM-dd")}
     required: False
 ---
 question: |
-  Sign your forms
+  Do you want to sign your forms using your device?
 subquestion: |
-  You can sign the forms now, in this box. 
-  
-  Or print and then sign by hand.
+  You can also print the forms and sign them by hand later, before you send them to DOR.
+  Which do you prefer?
+field: sign_on_device
+buttons:
+  - "Sign on my device": True
+  - "Print and sign by hand": False
+---
+question: |
+  Sign your forms  
 signature: signature
 ---

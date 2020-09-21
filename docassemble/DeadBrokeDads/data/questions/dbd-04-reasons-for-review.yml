@@ -234,7 +234,7 @@ validation code: |
 question: | 
   DOR is taking money from your bank account
 subquestion: |
-  Is the bank account DOR took money from the **same account** your ${ your_past_benefits } benefits are deposited into?
+  Did DOR take money from the **same account** your ${ your_past_benefits } benefits are deposited into?
   
   cs_arrears_date is ${ cs_arrears_date }
   

@@ -1,6 +1,6 @@
 code: |  
   hardshipsToSentences = {
-    "groceries": "I cannot pay for groceries.",  "meds": "I cannot pay for medication I need.", "utilities": "I cannot pay my utilities.", "fear-utilities": "My utilities will be shut off.", "lost-utilities": "My utilies have been shut off.", "rent": "I cannot pay rent.", "eviction-fear": "I will be evicted.", "eviction-facing": "I am being evicted.", "mortgage": "I cannot pay my mortgage.", "foreclosure-fear": "My house will be foreclosed on.", "other": "I cannot pay for some other basic need.", "abuse": "I cannot afford to leave an abusive relationship."
+    "groceries": "I cannot pay for groceries.",  "meds": "I cannot pay for medication I need.", "utilities": "I cannot pay my utilities.", "fear-utilities": "My utilities will be shut off.", "lost-utilities": "My utilities have been shut off.", "rent": "I cannot pay rent.", "eviction-fear": "I will be evicted.", "eviction-facing": "I am being evicted.", "mortgage": "I cannot pay my mortgage.", "foreclosure-fear": "My house will be foreclosed on.", "other": "I cannot pay for some other basic need.", "abuse": "I cannot afford to leave an abusive relationship."
   }
 ---
 code: |
@@ -35,9 +35,10 @@ code: |
   open_text_paragraph_one_complete = True
 
 ---
+id: dbd-01a actions taken
 question: |
   Actions DOR has taken and consequences
-subquestion:
+subquestion: |
   ${ sentences }
 fields:
   - Edit this paragraph: admin_review_comments

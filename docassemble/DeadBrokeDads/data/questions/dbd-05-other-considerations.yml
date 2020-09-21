@@ -84,13 +84,21 @@ code: |
 question: |
   Who do you owe?
 subquestion: |
-  As you know, we cannot help you with back child support you owe ${other_parent.name.first}, but in some cases we can ask DOR to forgive money you owe DOR. 
-
-  Look at the Child Support Enforcement System Financial Summary Report. [Image of Report showing Assigned / Unassigned]
-
-  Look at the amount for "Assigned". Does it say 'Yes' or 'No'?
+  As you know, 
   
-  [FILE DBD_AccountSummary.png]
+  * we **cannot** help you with back child support you owe ${other_parent.name.first}, 
+  * but in some cases we **can** ask DOR to forgive money you owe DOR. 
+
+  Look at the Child Support Enforcement System Financial Summary Report.
+  
+  [[FILE DBD_AccountSummary.png]](https://da-dev.masslegalhelp.org/playgroundstatic/DeadBrokeDads/4/account_summary_orig.png)
+
+  Under **Total Arrears** Look at the amount next to "Assigned."
+  
+  Is the amount **more** than $0.00?
+ 
+  
+  
 yesno: assigned_is_zero
 ---
 question: | 
