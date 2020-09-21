@@ -165,10 +165,12 @@ fields:
 question: |
   Has the court changed your child support order since ${cs_order_date}? 
 fields:
-  - yesnomaybe: order_modified
+  - no label: order_modified
     datatype: yesnomaybe
   - How many times has the court changed your child support order since ${cs_order_date}?: order_modified_number 
     datatype: integer
+    show if:
+      order_modified
 ---
 question: |
  Information about your ${most_recent_order} child support order.
