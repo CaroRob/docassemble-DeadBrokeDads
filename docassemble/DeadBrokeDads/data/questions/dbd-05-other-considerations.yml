@@ -76,8 +76,10 @@ code: |
   
   if assigned_is_zero:
     is_zero
+    equit_adjust = False
   else:
     is_not_zero
+    equit_adjust = True
     
   other_considerations_complete = True
 ---

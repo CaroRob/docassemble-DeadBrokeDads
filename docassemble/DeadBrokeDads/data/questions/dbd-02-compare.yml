@@ -187,7 +187,7 @@ fields:
       - sometimes I made partial payments, and sometimes I paid nothing: inconsistent
 ---
 question: |
-  When was the first time you fell behind on child support payments?:
+  When was the first time you fell behind on child support payments?
 fields:
   - no label: cs_arrears_date
     datatype: date

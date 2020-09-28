@@ -74,12 +74,12 @@ code: |
     possibilities_complete
   reasons_for_review_complete
   other_considerations_complete
-  admin_review = True
-  equit_adjust = True
+  # admin_review = True
+  # equit_adjust = True
   
   
   # financial_statement_questions # Defines client, spouse, household, assets, incomes, vehicles, expenses,
-  # form_decisions_complete
+  form_decisions_complete
   shared_form_info_complete
   get_forms
 ---
@@ -97,7 +97,7 @@ attachment:
 ---
 attachment:
   name: Bank Levy
-  docx template file: bank-levy_2020-09-21.docx
+  docx template file: bank-levy_2020-09-28.docx
   variable name: bank_levy
   filename: bank_levy
 ---
@@ -109,11 +109,15 @@ attachment:
 ---
 # Maybe need to switch to reconsider
 # if this triggers unneeded screens. Experiment
-depends on:
-  - cover_page
-  - administrative_review
-  - equitable_adjustment
+reconsider:
+#   - cover_page
+#   - administrative_review
+#   - equitable_adjustment
+#   - bank_levy
+  - admin_review
   - bank_levy
+  - equit_adjust
+
 code: |
   file_bundle_temp = [cover_page]
   
