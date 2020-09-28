@@ -16,7 +16,13 @@ code: |
     # need_offer
   if problems.any_true('told-me-garnish-increase', 'told-boss-garnish-increase'): 
     if hardships.any_true():
-      twenty_five_percent = True
+      twenty_five_percent = True    
+      admin_review = True
+      finance_statement = True
+    else:
+      twenty_five_percent = False
+  else:
+    twenty_five_percent = False
   if problems.any_true('driver-license', 'car-reg'):
     comment_car
   if problems.any_true('business-license', 'professional-license', 'trade-license'):
