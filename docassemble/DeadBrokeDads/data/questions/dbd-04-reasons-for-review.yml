@@ -255,6 +255,8 @@ validation code: |
   if dor_took_money_date > today():
     validation_error("This date cannot be in the future.")
 ---
+comment: |
+  CR had asked, How can our users actually answer this question? And what if the answer is no?, Barb says 10/07/2020 Ask instead, Is most of the money in this account from your benefits? And also, Do have any income other than your benefits?
 question: |
   DOR is taking money from your bank account
 subquestion: |
@@ -277,11 +279,9 @@ fields:
     choices:
       - Yes: True
       - No: False
-  - Did the money DOR took come from the benefits?: benefits_used
+  - Did most of the money in this account come from your benefits?: benefits_used
     show if: account_same
     datatype: yesnoradio
-  - note: CR -How can our users actually answer this question? And what if the answer is no?
-    show if: account_same
 ---
 question: |
   DOR took money out of a different bank account

@@ -31,6 +31,7 @@ code: |
   intro_complete = True
 ---
 section: Introduction
+id: 01 Welcome
 question: | 
   Welcome!
 subquestion: |
@@ -54,6 +55,7 @@ under: |
   Note: Just to be clear -  we can **only** help with money you owe the Department of Revenue. 
   You must still pay any back child support you owe your child's other parent.
 ---
+id: 01 modify
 question: |
   Modify your child support order
 subquestion: |
@@ -68,6 +70,7 @@ subquestion: |
    [How do I change a child support order](https://www.masslegalhelp.org/children-and-families/child-support-change-how).
 event: kick_out
 ---
+id: 01 your name
 question: |
  Your name
 subquestion: |
@@ -79,6 +82,7 @@ fields:
   - Last: client.name.last
 section: About you
 ---
+id: 01 what actions did DOR take?
 question: |
   What actions has DOR taken that make it hard for you to pay the child support?
 fields:
@@ -95,16 +99,17 @@ fields:
       - DOR froze my account so I cannot use the money in my bank.: froze-account
       - DOR took money out of my bank account.: account
       - DOR took more money of my account than I owe: too-much
-      - DOR took money out of an account that is not my money.: shared-account			
-      - DOR took my driver's license: driver-license			
-      - DOR suspended my car registration: car-reg			
-      - DOR took my business license: business-license			
+      - DOR took money out of an account that is not my money.: shared-account
+      - DOR took my driver's license: driver-license
+      - DOR suspended my car registration: car-reg
+      - DOR took my business license: business-license
       - DOR took my professional license: professional-license
       - DOR took my trade license: trade-license
       - I have another problem with DOR.: other
     none of the above: False
     
 ---
+id: 01 other action DOR took
 question: |
   What is the other problem you are having with DOR/CSE?
 subquestion: |
@@ -113,6 +118,7 @@ fields:
   - no label: prob_other
     datatype: area
 ---
+id: 01 what help do you need
 question: |
   What do you need help with, ${client.name.first}? 
 subquestion: |
@@ -126,6 +132,7 @@ fields:
       - I cannot keep up with the payments that the Court ordered: cant-sustain
       - I need help like a payment plan to pay the back child support I owe: needplan
 ---
+id: 01 hardship list
 question: |
   Explain what you cannot afford
 subquestion: |
@@ -147,6 +154,7 @@ fields:
       - I am being forced to stay with an abusive partner: abuse
       - I cannot pay for some other basic need.: other
 ---
+id: 01 hardship cannot drive 
 question: |
   I cannot drive!
 subquestion: |
@@ -156,6 +164,7 @@ fields:
 under: |
   For example, "I cannot pick up my ${ child_te }.  I cannot get to work so I cannot earn money for basic needs and child support."
 ---
+id: 01 hardship need license
 question: |
   I need my license!
 subquestion: |
@@ -165,6 +174,7 @@ fields:
 under: |
   For example, "I need my license to work so I can earn money to pay for my basic needs and child support."
 ---
+id: 01 offer in settlement
 question: |
   Offer in Settlement
 subquestion: |

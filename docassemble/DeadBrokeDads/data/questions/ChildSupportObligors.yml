@@ -97,7 +97,7 @@ attachment:
 ---
 attachment:
   name: Bank Levy
-  docx template file: bank-levy_2020-09-28.docx
+  docx template file: bank-levy.docx
   variable name: bank_levy
   filename: bank_levy
 ---
@@ -139,6 +139,7 @@ code: |
     
 
 ---
+id: base yml download screen
 comment: |
   get as zip file  
   [:file-archive: Download as zip](${ file_bundle_zip.url_for()} )
