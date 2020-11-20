@@ -91,20 +91,20 @@ fields:
     datatype: checkboxes
     choices:
       - This Notice of Delinquency is the first I knew I was behind in child support.: knewnot
-      - DOR took my tax refund: refund 
-      - DOR started taking money out my pay: garnish  
+      - DOR took my tax refund.: refund 
+      - DOR started taking money out my pay.: garnish  
       - DOR is taking more money out of my pay than they should.: garnish-increase
-      - DOR told me the amount of child support I need to pay is going up by 25%: told-me-garnish-increase
-      - DOR told **my employer** the amount of child support I need to pay is going up by 25%: told-boss-garnish-increase
+      - DOR told me the amount of child support I need to pay is going up by 25%.: told-me-garnish-increase
+      - DOR told **my employer** the amount of child support I need to pay is going up by 25%.: told-boss-garnish-increase
       - DOR froze my account so I cannot use the money in my bank.: froze-account
       - DOR took money out of my bank account.: account
-      - DOR took more money of my account than I owe: too-much
+      - DOR took more money of my account than I owe.: too-much
       - DOR took money out of an account that is not my money.: shared-account
-      - DOR took my driver's license: driver-license
-      - DOR suspended my car registration: car-reg
-      - DOR took my business license: business-license
-      - DOR took my professional license: professional-license
-      - DOR took my trade license: trade-license
+      - DOR took my driver's license.: driver-license
+      - DOR suspended my car registration.: car-reg
+      - DOR took my business license.: business-license
+      - DOR took my professional license.: professional-license
+      - DOR took my trade license.: trade-license
       - I have another problem with DOR.: other
     none of the above: False
     
@@ -129,8 +129,8 @@ fields:
     choices:
       - DOR is wrong about the amount of child support I owe.: disagreement
       - I cannot pay all the back child support I owe.: cant-afford
-      - I cannot keep up with the payments that the Court ordered: cant-sustain
-      - I need help like a payment plan to pay the back child support I owe: needplan
+      - I cannot keep up with the payments that the Court ordered.: cant-sustain
+      - I need help like a payment plan to pay the back child support I owe.: needplan
 ---
 id: 01 hardship list
 question: |
