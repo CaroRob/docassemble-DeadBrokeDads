@@ -70,6 +70,7 @@ mandatory: True
 code: |
   intro_complete
   comparison_complete
+  # if user thinks DOR/CSE is wrong, or user isn't sure if arrears amount is correct
   if dor_cse_notice_arrears_wrong or dor_cse_notice_arrears_wrong == None:
     possibilities_complete
   reasons_for_review_complete

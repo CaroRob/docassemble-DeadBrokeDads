@@ -178,7 +178,7 @@ subquestion: |
   Who filed the forms for your most recent child support order?
 fields:
   - no label: filer
-    datatype: checkboxes
+    input type: radio
     choices:
       - I filed: obligor
       - ${other_parent.name.first} filed: recipient
