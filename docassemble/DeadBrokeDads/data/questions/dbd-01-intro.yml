@@ -54,8 +54,6 @@ subquestion: |
 
   ###Note
   
-  Just to be clear - we can **only** help with money you owe the Department of Revenue. 
-  
   We **cannot help you change the amount of child support you owe your child’s other parent**. 
   
   If you need to change the amount of the child support order, you will need to go to court. See [Changing a Child Support Order](https://www.masslegalhelp.org/children-and-families/child-support-changing-it) on MassLegalHelp.
@@ -156,7 +154,7 @@ section: About you
 ---
 id: 01 what actions did DOR take?
 question: |
-  What actions has DOR taken that make it hard for you to pay the child support?
+  What did DOR do that you need help with?
 fields:
   - note: Check every box that is true.
   - no label: problems

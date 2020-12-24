@@ -169,7 +169,8 @@ subquestion: |
   * W2s.
 yesno: documentation
 ---
-event: dbd 02 - more_info_needed
+id: dbd 02 - more info needed
+event: more_info_needed
 question: |
   You need more information or documentation
 subquestion: |

@@ -126,9 +126,7 @@ field: is_not_zero
 ---
 id: dbd 05 why did you fall behind
 question: |
-  DOR should know about your situation
-subquestion: |
-  Why did you fall behind in your child support payments?
+  Why did you fall behind in your child support payments?  
 fields:
   - no label: other_considerations
     datatype: checkboxes
