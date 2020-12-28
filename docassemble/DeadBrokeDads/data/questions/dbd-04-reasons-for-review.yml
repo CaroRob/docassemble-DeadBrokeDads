@@ -252,18 +252,18 @@ validation code: |
   if not your_children_past_benefits[i].still_receiving and your_children_past_benefits[i].start_date > your_children_past_benefits[i].end_date:
     validation_error("Benefit end date should be after start date")
 ---
-id: dbd 04 levy date
-question: |
-  When did they take it?
-subquestion: |
-  When did DOR take the money of your account?
-fields:
-  - Date: dor_took_money_date
-    datatype: date
-validation code: |
-  if dor_took_money_date > today():
-    validation_error("This date cannot be in the future.")
----
+# id: dbd 04 levy date
+# question: |
+#   When did they take it?
+# subquestion: |
+#   When did DOR take the money of your account?
+# fields:
+#   - Date: dor_took_money_date
+#     datatype: date
+# validation code: |
+#   if dor_took_money_date > today():
+#     validation_error("This date cannot be in the future.")
+# ---
 id: dbd 04 benefits account
 comment: |
   CR had asked, How can our users actually answer this question? And what if the answer is no?, Barb says 10/07/2020 Ask instead, Is most of the money in this account from your benefits? And also, Do have any income other than your benefits?

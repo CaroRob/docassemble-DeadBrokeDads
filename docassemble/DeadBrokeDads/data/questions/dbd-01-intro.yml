@@ -28,6 +28,9 @@ code: |
       twenty_five_percent = False
   else:
     twenty_five_percent = False
+  
+  if problems.any_true('froze-account', 'account', 'too-much', 'shared-account'):
+    dor_took_money_date
   if problems.any_true('driver-license', 'car-reg'):
     comment_car
   if problems.any_true('business-license', 'professional-license', 'trade-license'):
@@ -223,6 +226,26 @@ fields:
       - My house will be foreclosed on.: foreclosure-fear
       - I am being forced to stay with an abusive partner: abuse
       - I cannot pay for some other basic need.: other
+---
+id: dbd 01 levy date
+question: |
+  % if problems.any_true('account', 'too-much', 'shared-account'):
+  When did they take it?
+  % else:
+  When did they freeze it?
+  % endif  
+subquestion: |
+  % if problems.any_true('account', 'too-much', 'shared-account'):
+  When did DOR take the money of your account?
+  % else:
+  When did DOR freeze your bank account?
+  % endif
+fields:
+  - Date: dor_took_money_date
+    datatype: date
+validation code: |
+  if dor_took_money_date > today():
+    validation_error("This date cannot be in the future.")
 ---
 id: 01 hardship cannot drive 
 question: |
