@@ -37,6 +37,7 @@ sections:
 features:
   navigation: True
   progress bar: True
+  css: dbd-styles.css
 ---
 modules:
   - docassemble.income
