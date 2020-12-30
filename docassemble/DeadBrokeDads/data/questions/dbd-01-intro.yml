@@ -4,6 +4,7 @@ include:
 ---
 code: |
   welcome
+  important
   if call_dor:
     if contact_dor == 'exit':
       command('exit')
@@ -40,6 +41,7 @@ code: |
 ---
 section: Introduction
 id: 01 Welcome
+field: welcome
 question: | 
   Welcome!
 subquestion: |
@@ -55,18 +57,26 @@ subquestion: |
   * DOR/CSE took your business license, your trade license or your professional license.
   * You have another problem with DOR/CSE related to child support.
 
-  ###Note
-  
+ 
+---
+id: 01 Important
+question: |
+  Important
+subquestion: |  
   We **cannot help you change the amount of child support you owe your child’s other parent**. 
   
   If you need to change the amount of the child support order, you will need to go to court. See [Changing a Child Support Order](https://www.masslegalhelp.org/children-and-families/child-support-changing-it) on MassLegalHelp.
   
-  We can only help you with one child support order at a time. If you owe back child support to more than one parent, you will need to start over with a new interview for each parent. 
-field: welcome
+  We can only help you with one child support order at a time. 
+  
+  If you owe back child support to more than one parent, you will need to start over with a new interview for each parent.
+  
+field: important
 action buttons:
   - label: Exit
     action:  https://masslegalhelp.org/children-and-families/child-support-enforcing2/dor
     color: danger
+
 ---
 id: 01 call dor cse
 question: | 
@@ -100,33 +110,10 @@ subquestion: |
   
   Come back if you cannot solve your problem informally with DOR/CSE.
 field: contact_dor
-buttons:
-  - Exit: exit
-  - Carry on: proceed
----
-id: welcome 2
-question: |
-  this was our old welcome page
-subquestion: |
-  If DOR/CSE sent you a Notice of Child Support Delinquency you may not have to pay **everything** on the notice. 
-  
-    They can decide not to charge you:
-
-    * interest, (?)
-    * penalties,
-    * the amount of child support you owe them.* 
-
-    They can also undo actions they have taken that make it hard for you to pay overdue child support.
-    
-    We will ask you questions to help you fill out the forms you need to get help with the money DOR says you them.
-    
-  [FILE Notice_of_Arrears.png]
-  
-  ## Shall we get started?  
-yesno: get_started
-under: |
-  Note: Just to be clear -  we can **only** help with money you owe the Department of Revenue. 
-  You must still pay any back child support you owe your child's other parent.
+action buttons:
+  - label: Exit
+    action: https://www.google.com/search?q=contact+dor+cse+mass.gov&oq=contact+dor+cse+mass.gov&aqs=chrome..69i57j33i22i29i30.8678j0j7&sourceid=chrome&ie=UTF-8
+    color: danger
 ---
 id: 01 modify
 question: |
