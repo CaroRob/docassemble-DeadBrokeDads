@@ -13,7 +13,7 @@ code: |
   if filer != "DOR/CSE":
     if cse_copy in ['no','maybe']:
       kick_out
-    cs_order_end
+    cs_order_end_date_tf
     if order_modified_date:
       most_recent_cs_date = order_modified_date
     else:
@@ -211,22 +211,36 @@ id: dbd 03 - end date
 question: |
   Does your ${ most_recent_order} child support order have an end date?
 subquestion: |
-  Read the order carefully. Sometimes it is hard to find and some orders do not say anything about when you can stop paying child support.
+  Read the order carefully. It can be hard to find when your child support order ends. Some orders do not say anything about when you can stop paying child support.
+  
+  What does your child support order say about ending child support?
 fields:
-  - How does the order talk about ending child support?: cs_order_end
-    datatype: checkboxes
-    choices:
-      - It has an end date.: cs_order_end_date_tf
-      - It explains when the order should end.: cs_order_end_expl_tf
-    none of the above: |
-      ${ "It says nothing about when child support should end." }
+  - It has an end date.: cs_order_end_date_tf
+    datatype: yesno
+    disable if: cs_order_no_end
   - What is the end date?: cs_order_end_date
     datatype: date
-    show if: cs_order_end["cs_order_end_date_tf"]
-    #max: current_datetime().format_date()
-  - What does it say about when the child support order ends?: cs_order_end_expl
+    show if: cs_order_end_date_tf
+   # max: current_datetime().format_date()
+  - It explains when the order should end.: cs_order_end_expl_tf
+    datatype: yesno
+    disable if: cs_order_no_end
+  - What does it say about when the child support order ends?: cs_order_end_explanation
     datatype: text
-    show if: cs_order_end["cs_order_end_expl_tf"]
+    show if: cs_order_end_expl_tf
+  - It says nothing about when child support should end: cs_order_no_end
+    datatype: yesno
+    js disable if: |
+      val("cs_order_end_date_tf") == true || val("cs_order_end_expl_tf") == true
+---
+id: dbd 03 - has cs order end description happened
+question: |
+  Has your child support order ended?
+subquestion: |
+  You said your child support order says it ends, "${cs_order_end_explanation}.
+  
+  Has this happened?
+yesno: cs_order_description_happened
 ---
 id: dbd 03 - income gone down
 question: |
