@@ -1,5 +1,5 @@
 code: |
-  if do_not_owe_any or (dor_cse_notice_arrears_wrong and (arrears_correct > 0)) or benefits_w_ssi_kid or appointed_guardian or appointed_conservator or rep_payee or other_need:
+  if do_not_owe_any or (dor_cse_notice_arrears_wrong and (arrears_correct != 0 or arrears_correct != '' )) or benefits_w_ssi_kid or appointed_guardian or appointed_conservator or rep_payee:# or problem_other: # or other_need
     admin_review = True
   # if twenty_five_percent:    
   #   admin_review = True

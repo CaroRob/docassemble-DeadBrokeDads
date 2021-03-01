@@ -13,14 +13,14 @@ code: |
       court_ordered_cs
     elif cs_arrears_mc == 'No':
       if not documentation:
-  #     do_not_owe_any
-  #   else:
         more_info_needed
     else:
       printout_looks_right
+    do_not_owe_any
   else:
     dor_cse_notice_arrears_true = True
     cs_arrears_date
+  do_not_owe_any
     
   comparison_complete = True
 ---
@@ -233,24 +233,32 @@ fields:
 code: |
   if cs_arrears_mc == 'No':
     do_not_owe_any = True
-    arrears_correct = '0.00'
   elif cs_arrears_mc == 'I am not sure':        
     do_not_owe_any = False
   else:        
     if not cs_arrears_catch_up:        
       do_not_owe_any = False
-      if cs_arrears_situ == 'nothing':
-      
-      # calculate the number of weeks between date client fell behind and today. Then multiply their weekly child support order by the number of weeks they are behind.
-        weekly_cs_amount = (court_ordered_cs * court_ordered_frequency)/52
-        arrears_correct_value = round((int(date_difference(starting=cs_arrears_date, ending=today()).weeks))*(weekly_cs_amount),2)
-
     else:
       do_not_owe_any = True
-      arrears_correct_value = 0
-    if arrears_correct_value > 0:
-      arrears_correct = '$' + str(arrears_correct_value)
-    else:
-      arrears_correct = 'I am not sure'
 ---
-  
+code: |
+  if cs_arrears_mc == 'No':
+    arrears_correct = '0.00'
+  elif cs_arrears_mc == 'I am not sure':        
+    arrears_correct = ''
+  else:        
+    if not cs_arrears_catch_up: 
+      if cs_arrears_situ == 'nothing':
+          arrears_correct = '$' + str(arrears_correct_value)
+      else:
+        arrears_correct = 'I am not sure'
+    else:
+      arrears_correct = '0.00'
+---
+code: |
+  # calculate the number of weeks between date client fell behind and today. Then multiply their weekly child support order by the number of weeks they are behind.
+  weekly_cs_amount = (court_ordered_cs * court_ordered_frequency)/52
+  arrears_correct_value = round((int(date_difference(starting=cs_arrears_date, ending=today()).weeks))*(weekly_cs_amount),2) 
+  # if arrears_correct_value > 0:
+  #   arrears_correct = '$' + str(arrears_correct_value)
+---

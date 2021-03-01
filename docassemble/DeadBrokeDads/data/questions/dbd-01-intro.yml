@@ -16,7 +16,7 @@ code: |
   #  kick_out
   if problems.any_true('other'):
     prob_other
-    other_need = True
+    other_need
   if help_needed.any_true('cant-afford', 'cant-sustain'):
     hardships  
   # if help_needed.any_true('needplan'):
@@ -192,6 +192,12 @@ subquestion: |
 fields:
   - no label: prob_other
     datatype: area
+---
+code: |
+  if problems.any_true('other'):
+    other_need = True
+  else:
+    other_need = False
 ---
 id: 01 what help do you need
 question: |

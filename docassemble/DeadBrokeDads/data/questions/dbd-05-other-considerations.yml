@@ -67,6 +67,8 @@ code: |
 
   if reconcile:
     reconcile_date
+ 
+  other_need
 
   if assigned_amount > 0:
     is_not_zero  
