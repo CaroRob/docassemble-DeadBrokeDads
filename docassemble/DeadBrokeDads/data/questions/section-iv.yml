@@ -29,11 +29,11 @@ code: |
   else: 
     bankact.there_are_any=False
   
- if hasretirement == True:
+  if hasretirement == True:
     retirement_acts.there_are_any=True
     retirement_acts.new_item_name = len(retirement_acts)
   else: 
-   retirement_acts.there_are_any=False
+    retirement_acts.there_are_any=False
 
   if hassecurities == True:
     securities.there_are_any=True
