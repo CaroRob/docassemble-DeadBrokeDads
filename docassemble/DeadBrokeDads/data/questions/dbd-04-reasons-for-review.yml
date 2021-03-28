@@ -123,6 +123,7 @@ code: |
      arrears_during_benefits.append(item)
   arrears_during_benefits.gathered = True
 
+  # move to 06-form-decisions?
   if len(arrears_during_benefits) > 0:
     equit_adjust_a = True
 ---
@@ -230,6 +231,7 @@ question: |
 fields:
   - When did your ${ i } start?: your_past_benefits[i].start_date
     datatype: date
+  - note: If you do not know when your ${ i } began, give us your best estimate. 
   - Do you still get ${ i }?: your_past_benefits[i].still_receiving
     datatype: yesnoradio
   - When did your ${ i } end?: your_past_benefits[i].end_date
@@ -256,10 +258,11 @@ fields:
 ---
 id: dbd 04 child benefits dates
 question: |
-  When did your  ${child_te} get ${ i }?
+  When did your ${child_te} get ${ i }?
 fields:
-  - When did your  ${child_te}'s ${ i } start?: your_children_past_benefits[i].start_date
+  - When did your ${child_te}'s ${ i } start?: your_children_past_benefits[i].start_date
     datatype: date
+  - note: "If you do not know when your ${child_te}'s ${ i } began, give us your best estimate." 
   - Do they still get ${ i }?: your_children_past_benefits[i].still_receiving
     datatype: yesnoradio
   - When did their ${ i } end?: your_children_past_benefits[i].end_date
@@ -269,9 +272,10 @@ fields:
 validation code: |
   if your_children_past_benefits[i].start_date > today():
     validation_error("Start date cannot be in the future")
-    
+
   if not your_children_past_benefits[i].still_receiving and your_children_past_benefits[i].start_date > your_children_past_benefits[i].end_date:
     validation_error("Benefit end date should be after start date")
+
 ---
 # id: dbd 04 levy date
 # question: |
@@ -334,4 +338,3 @@ subquestion: |
   What if DOR took money out of the account my benefits go into, but it wasn't my benefit money?
 field: unexempt_money
 ---
-

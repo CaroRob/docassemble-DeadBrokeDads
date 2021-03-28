@@ -59,6 +59,11 @@ objects:
 images:
   notice: Notice of Arrears.png
   noticetop: DBD_NoticeTop.png
+  one: one.png
+  two: two.png
+  three: three.png
+  four: four.png
+  five: five.png
 ---
 terms:
   notice: |

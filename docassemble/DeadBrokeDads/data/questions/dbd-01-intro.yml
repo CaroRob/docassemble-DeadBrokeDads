@@ -16,7 +16,6 @@ code: |
   #  kick_out
   if problems.any_true('other'):
     prob_other
-    other_need
   if help_needed.any_true('cant-afford', 'cant-sustain'):
     hardships  
   # if help_needed.any_true('needplan'):
@@ -193,12 +192,6 @@ fields:
   - no label: prob_other
     datatype: area
 ---
-code: |
-  if problems.any_true('other'):
-    other_need = True
-  else:
-    other_need = False
----
 id: 01 what help do you need
 question: |
   What do you need help with, ${client.name.first}? 
@@ -212,6 +205,28 @@ fields:
       - I cannot pay all the back child support I owe.: cant-afford
       - I cannot keep up with the payments that the Court ordered.: cant-sustain
       - I need help like a payment plan to pay the back child support I owe.: needplan
+  - no label: extra_help_needed
+    datatype: checkboxes
+    none of the above: False
+    code: |
+      mylist
+    
+---
+code: |
+  mylist = [{'apple': word("Apples")},
+            {'orange': "Oranges"},
+           ]
+  if problems.any_true('driver-license','business-license', 'professional-license', 'trade-license'):
+    mylist.append({'license': "I need my license back"})
+  if problems['driver-license']:
+    mylist.append({'registration': "I need my registration back"})
+  
+  if problems.any_true('froze-account','account', 'shared-account'):
+    mylist.append({'license': "I need to be able to use the money in my account."})
+  if problems['other']:
+    mylist.append  ({'other': "I need help with something else."})
+
+    
 ---
 id: 01 hardship list
 question: |

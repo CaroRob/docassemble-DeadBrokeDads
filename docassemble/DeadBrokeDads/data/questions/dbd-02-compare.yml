@@ -68,29 +68,31 @@ subquestion: |
   
   What does DOR/CSE say these are?
   The notice should look something like this:
-  [FILE DBD_NoticeTop.png]
+  [[FILE DBD_NoticeTop.png]](/playgroundstatic/DeadBrokeDads/4/DBD_NoticeTop.png)
 fields:
-  - 1. What is the date?: notice_date_delinquency
+  - ":one: What is the date?": notice_date_delinquency
     datatype: date 
-  - 2. Is the custodial parent's name **${other_parent.name}**?: other_parent_wrong
+  - ":two: Is the custodial parent's name **${other_parent.name}**?": other_parent_wrong
     datatype: noyesradio
-  - 2. What is custodial parent's first name?: dor_other_parent.name.first
+  - "What is custodial parent's first name?": dor_other_parent.name.first
     show if: other_parent_wrong
-  - 2. What is custodial parent's middle name?: dor_other_parent.name.middle
+  - ":two: What is custodial parent's middle name?": dor_other_parent.name.middle
     required: False
     show if: other_parent_wrong
-  - 2. What is custodial parent's last name?: dor_other_parent.name.last
+  - ":two: What is custodial parent's last name?": dor_other_parent.name.last
     show if: other_parent_wrong
-  - What name does it give for the court?: dor_cse_notice_court
+  - ":two: What name does it give for the court?": dor_cse_notice_court
     datatype: dropdown
     code: pf_courts 
-  - 3. What does it say you "owe" $$$?: dor_cse_notice_amount
+  - ":three: What does it say you 'owe' $$$?": dor_cse_notice_amount
     datatype: currency
-  - 4. What does it say the frequency is?: dor_cse_notice_frequency
+    help: |
+      If there is only a blank space after $$$, or it says $0.00, DOR/CSE thinks your child support order has ended and you only owe past due child support. 
+  - ":four: What does it say the frequency is?": dor_cse_notice_frequency
     datatype: number
     code: |
       period_list()
-  - 5. Total past due child support?: dor_cse_notice_arrears
+  - ":five:Total past due child support?": dor_cse_notice_arrears
     datatype: currency
     min: 0
 validation code: |
@@ -145,7 +147,8 @@ fields:
     show if: dor_cse_notice_frequency_wrong
   - Do you owe ${currency(dor_cse_notice_arrears)} in back child support? : dor_cse_notice_arrears_wrong
     datatype: noyesmaybe
-  - note: Note on arrears amount. If you do owe back child support, this amount may be different from your calculation because it includes ${currency(arrears_state)} penalties and interest on top of any back child support you owe.
+    help: |
+      Note on arrears amount. If you do owe back child support, this amount may be different from your calculation because it includes ${currency(arrears_state)} penalties and interest on top of any back child support you owe.
 ---
 id: dbd 02 - ever pay late?
 question: |
