@@ -19,7 +19,7 @@ code: |
   else:
     problemsSentences = "No problems"
   
-  if help_needed.any_true('cant-afford', 'cant-sustain'):
+  if help_needed.any_true('cantafford', 'cantsustain'):
     if hardships.any_true():
       for hardship in hardships.true_values():
         hardshipsSentences += hardshipsToSentences[hardship] + "\n"
@@ -40,9 +40,9 @@ code: |
 ---
 id: dbd-01a review and allow to edit actions and hardships comments
 question: |
-  Actions DOR has taken and consequences
-subquestion: |
-  ${ sentences }
+  Explain to DOR/CSE the impact their actions have had on you
+subquestion: |  
+  Change the text in the box below to tell DOR/CSE about what they have done and how it has affected you. 
 fields:
   - Edit this paragraph: admin_review_comments
     input type: area

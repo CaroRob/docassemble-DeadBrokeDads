@@ -14,29 +14,29 @@ code: |
   # client.name.first
   # else:
   #  kick_out
+
   if problems.any_true('other'):
     prob_other
-    other_need
-  if help_needed.any_true('cant-afford', 'cant-sustain'):
+    
+  if help_needed.any_true('cantafford', 'cantsustain'):
     hardships  
   # if help_needed.any_true('needplan'):
     # need_offer
+
   if problems.any_true('told-me-garnish-increase', 'told-boss-garnish-increase'): 
-    if hardships.any_true():
-      twenty_five_percent = True    
-      admin_review = True
-      finance_statement = True
-    else:
-      twenty_five_percent = False
-  else:
-    twenty_five_percent = False
+   hardships
+   twenty_five_percent
   
   if problems.any_true('froze-account', 'account', 'too-much', 'shared-account'):
     dor_took_money_date
+    hardships
+
   if problems.any_true('driver-license', 'car-reg'):
     comment_car
+
   if problems.any_true('business-license', 'professional-license', 'trade-license'):
     comment_license
+
   open_text_paragraph_one_complete
   intro_complete = True
 ---
@@ -184,6 +184,15 @@ fields:
     none of the above: False
     
 ---
+code: |
+if problems.any_true('told-me-garnish-increase', 'told-boss-garnish-increase'): 
+    if hardships.any_true():
+      twenty_five_percent = True    
+    else:
+      twenty_five_percent = False
+else:
+  twenty_five_percent = False
+---
 id: 01 other action DOR took
 question: |
   What is the other problem you are having with DOR/CSE?
@@ -192,12 +201,6 @@ subquestion: |
 fields:
   - no label: prob_other
     datatype: area
----
-code: |
-  if problems.any_true('other'):
-    other_need = True
-  else:
-    other_need = False
 ---
 id: 01 what help do you need
 question: |
@@ -209,15 +212,37 @@ fields:
     datatype: checkboxes
     choices:
       - DOR is wrong about the amount of child support I owe.: disagreement
-      - I cannot pay all the back child support I owe.: cant-afford
-      - I cannot keep up with the payments that the Court ordered.: cant-sustain
+      - I cannot pay all the back child support I owe.: cantafford
+      - I cannot keep up with the payments that the Court ordered.: cantsustain
       - I need help like a payment plan to pay the back child support I owe.: needplan
+  - no label: extra_help_needed
+    datatype: checkboxes
+    none of the above: False
+    code: |
+      mylist
+    
+---
+code: |
+  mylist = [{'apple': word("Apples")},
+            {'orange': "Oranges"},
+           ]
+  if problems.any_true('driver-license','business-license', 'professional-license', 'trade-license'):
+    mylist.append({'license': "I need my license back"})
+  if problems['driver-license']:
+    mylist.append({'registration': "I need my registration back"})
+  
+  if problems.any_true('froze-account','account', 'shared-account'):
+    mylist.append({'license': "I need to be able to use the money in my account."})
+  if problems['other']:
+    mylist.append  ({'other': "I need help with something else."})
+
+    
 ---
 id: 01 hardship list
 question: |
-  Explain what you cannot afford
+  If you are struggling to pay for basic needs, tell DOR
 subquestion: |
- If you are struggling with anything in the list below, check the box to tell the DOR/CSE that you are suffering "hardship"
+ Check the box next to each "hardship" you are suffering from.
 fields:
   - no label: hardships
     datatype: checkboxes
