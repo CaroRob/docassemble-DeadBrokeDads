@@ -87,14 +87,18 @@ code: |
     your_children_past_benefits.there_is_another = False
 ---
 # Admin review: reason 4
+# TODO: when adding review screens need to put depends on at top of block with all variables listed that benefits_w_ssi_kids  depends on.
 code: |
-  benefits_w_ssi_kid = False
+  temp_benefits_w_ssi_kid = False
   if len(your_past_benefits) > 0:
     if still_receiving_benefits:
       if len(your_children_past_benefits) > 0:    
         if your_children_benefit_list['SSI']:
           if your_children_past_benefits['SSI'].still_receiving:
-            benefits_w_ssi_kid = True
+            temp_benefits_w_ssi_kid = True
+  benefits_w_ssi_kid = temp_benefits_w_ssi_kid
+          
+
 ---
 code: |
   for item in your_past_benefits:
@@ -231,11 +235,14 @@ question: |
 fields:
   - When did your ${ i } start?: your_past_benefits[i].start_date
     datatype: date
-  - note: If you do not know when your ${ i } began, give us your best estimate. 
+    help: |
+      If you do not know when your ${ i } began, give us your best estimate. 
   - Do you still get ${ i }?: your_past_benefits[i].still_receiving
     datatype: yesnoradio
   - When did your ${ i } end?: your_past_benefits[i].end_date
     datatype: date
+    help: |
+      If you do not know when your ${ i } ended, give us your best estimate.
     js show if: |
       val("your_past_benefits[i].still_receiving") === false
 validation code: |
@@ -262,11 +269,14 @@ question: |
 fields:
   - When did your ${child_te}'s ${ i } start?: your_children_past_benefits[i].start_date
     datatype: date
-  - note: "If you do not know when your ${child_te}'s ${ i } began, give us your best estimate." 
+    help: |
+      If you do not know when your ${child_te}'s ${ i } began, give us your best estimate.
   - Do they still get ${ i }?: your_children_past_benefits[i].still_receiving
     datatype: yesnoradio
   - When did their ${ i } end?: your_children_past_benefits[i].end_date
     datatype: date
+    help: |
+      If you do not know when your ${child_te}'s ${ i } began, give us your best estimate.
     js show if: |
       val("your_children_past_benefits[i].still_receiving") === false
 validation code: |
@@ -290,30 +300,18 @@ validation code: |
 #     validation_error("This date cannot be in the future.")
 # ---
 id: dbd 04 benefits account
-comment: |
-  CR had asked, How can our users actually answer this question? And what if the answer is no?, Barb says 10/07/2020 Ask instead, Is most of the money in this account from your benefits? And also, Do have any income other than your benefits?
 question: |
-  DOR is taking money from your bank account
+  % if problems.any_true('account', 'too-much'):
+  DOR/CSE is taking money from your bank account
+  % else:
+  DOR/CSE froze your account
+  % endif  
 subquestion: |
+  % if problems.any_true('account', 'too-much'):
   Did DOR take money from the **same account** your ${ your_past_benefits } benefits are deposited into?
-
-  cs_arrears_date is ${ cs_arrears_date }
-
-  {% if dor_take_ward_money %}
-  
-  * ${dor_take_ward_money}
-  
-  [X]{% else %}[  ]{% endif %}  DOR took money from my bank account 
-
-  dor_took_money_date is ${ dor_took_money_date }
-
-  equit_adjust_a is ${equit_adjust_a}
-
-  % for item in your_past_benefits:
-    ${ item } : ${ your_past_benefits[item].start_date } --  ${ your_past_benefits[item].end }<br>
-  % endfor
-
-  And what is the value of benefits_w_ssi_kid? ${ benefits_w_ssi_kid }
+  % else:
+  Did DOR freeze the **same account** your ${ your_past_benefits } benefits are deposited into?  
+  % endif  
 fields:
   - no label: account_same
     datatype: radio
@@ -324,11 +322,24 @@ fields:
     show if: account_same
     datatype: yesnoradio
 ---
+# TODO make code so that we don't have to use defined in template
+# code: |
+#   if account_same and benefits_used:    
+#       levy_exempt = True
+#     else:
+#       levy_exempt = False
+#   else:
+#     levy_exempt = False
+---
 id: dbd 04 unexempt account
 question: |
   DOR took money out of a different bank account
 subquestion: |
-  What if DOR took money out of my account and it's neither a guardian/conservator account, nor the account I put my benefits into?
+  What if DOR took money out of my account and it is not 
+  * a guardian account,
+  * a conservator account, 
+  * an account I keep for someone else because I am a representative payee, or
+  * an account I keep my benefits in?
 field: unexempt_account
 ---
 id: dbd 04 unexempt money

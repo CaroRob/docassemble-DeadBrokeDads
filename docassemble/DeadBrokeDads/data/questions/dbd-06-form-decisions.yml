@@ -1,9 +1,7 @@
 code: |
-  if do_not_owe_any or (dor_cse_notice_arrears_wrong and (arrears_correct != 0 or arrears_correct != '' )) or benefits_w_ssi_kid or appointed_guardian or appointed_conservator or rep_payee:# or problem_other: # or other_need
+  if do_not_owe_any or (dor_cse_notice_arrears_wrong and (arrears_correct != 0 or arrears_correct != '' )) or benefits_w_ssi_kid or (problems['shared-account'] and (appointed_guardian or appointed_conservator or rep_payee)):# or problem_other: # or other_need
     admin_review = True
-  # if twenty_five_percent:    
-  #   admin_review = True
-  #   finance_statement = True
+    
   if problems.any_true('account', 'froze-account'):
     if account_same and benefits_used:    
       admin_review = True
@@ -13,20 +11,28 @@ code: |
       levy_exempt = False
   else:
     levy_exempt = False
+    
   if problems['shared-account']:
     if levy_not_mine:
       admin_review
       bank_levy = True
   else:
     levy_not_mine = False
+
   if problems['too-much']:
     bank_levy = True
     levy_too_much = True
   else:
     levy_too_much = False
+
   if problems.any_true('froze-account', 'account', 'too-much', 'shared-account'):
     if levy_hardship:
       levy_comments
+
+  if problems.any_true('told-me-garnish-increase', 'told-boss-garnish-increase'): 
+    if hardships.any_true():    
+      admin_review = True
+      finance_statement = True
     
   form_decisions_complete = True 
 ---
@@ -34,10 +40,12 @@ code: |
   levy_hardship = hardships.any_true()
 ---
 code: |
-    levy_comments = hardshipsSentences
+  levy_comments = hardshipsSentences
 ---
 code: |
-  if assigned_amount > 0:
+  if do_not_owe_any or (dor_cse_notice_arrears_wrong and (arrears_correct != 0 or arrears_correct != '' )):
+    equit_adjust = False
+  elif assigned_amount > 0:
     equit_adjust = True
   else:
     equit_adjust = False

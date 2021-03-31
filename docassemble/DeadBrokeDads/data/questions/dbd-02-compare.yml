@@ -1,4 +1,6 @@
 code: |
+
+
   other_parent.name.first
   if dor_cse_notice_court == 'A court that is not in Massachusetts':
     dor_cse_notice_court = other_cs_court
@@ -25,7 +27,7 @@ code: |
   comparison_complete = True
 ---
 code: |
-  pf_courts = ['Barnstable Probate and Family Court', 'Berkshire Probate and Family Court', 'Bristol Probate and Family Court', 'Brockton Probate and Family Court', 'Dukes Probate and Family Court', 'Essex Probate and Family Court', 'Franklin Probate and Family Court', 'Hampden Probate and Family Court', 'Hampshire Probate and Family Court', 'Middlesex Probate and Family Court', 'Nantucket Probate and Family Court', 'Norfolk Probate and Family Court', 'Plymouth Probate and Family Court', ' Suffolk Probate and Family Court', 'Worcester Probate and Family Court', 'A court that is not in Massachusetts']
+  pf_courts = ['Barnstable Probate and Family Court', 'Berkshire Probate and Family Court', 'Bristol Probate and Family Court', 'Brockton Probate and Family Court', 'Dukes Probate and Family Court', 'Essex Probate and Family Court', 'Franklin Probate and Family Court', 'Hampden Probate and Family Court', 'Hampshire Probate and Family Court', 'Middlesex Probate and Family Court', 'Nantucket Probate and Family Court', 'Norfolk Probate and Family Court', 'Plymouth Probate and Family Court', 'Suffolk Probate and Family Court', 'Worcester Probate and Family Court', 'A court that is not in Massachusetts']
 ---
 id: dbd 02- other parent
 question: |
@@ -175,7 +177,7 @@ subquestion: |
 yesno: documentation
 ---
 id: dbd 02 - more info needed
-event: more_info_needed
+field: more_info_needed
 question: |
   You need more information or documentation
 subquestion: |
